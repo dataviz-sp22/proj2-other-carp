@@ -1,7 +1,6 @@
 Project 2 README
 ================
-other-carp
-2022/5/10
+Group Name: other-carp
 
 # Introduction
 
@@ -29,14 +28,11 @@ and hopefully, we can prevent the same attacks from happening again.
 What we want to do is to use shiny app to live demonstrate the process
 of Russia-Ukraine war, including the territory movement, military and
 non-military events across different time frame. You can find more
-details on data frame below.
+details on data frame below and all the codes are included on “app.R”
+file in Shiny App folder.
 
 # Data
 
 # Analysis/Graph Outline
-
-## Graph 1
-
-## Graph 2
 
 ## Discussion
