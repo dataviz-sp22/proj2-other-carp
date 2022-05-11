@@ -1,7 +1,7 @@
 ---
 title: "Project 2 Proposal"
 author: "Group Name: other-carp"
-output: html_document
+output: github_document
 ---
 ```{r load-packages, echo = FALSE, include = FALSE, message=FALSE}
 library(tidyverse)
@@ -15,7 +15,7 @@ Russian-Ukraine crisis is a long lasting problem and it caused countless casualt
 
 We choose this topic because all of us are concerned about international confrontations. We hope that the world is peaceful and there is no war or violent event exist any more. Also, it would be interesting to take a look at the which place has the most attackers or military actions, and which side has the relative advantages as the battles continued. If we can plot every single events on a map, we will be able to discover some patterns such as which area or city has the most violent event happen and hopefully, we can prevent the same attacks from happening again. 
 
-What we want to do is to use shiny app and interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different time frame. You can find more details on data frame below and all the codes are included on "app.R" file in Shiny App folder.
+What we want to do is to use shiny app and interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different time frame. The GOAL is to create pieces of "generative" art, ie., pieces of art that have been generated using computer input and mathematical formulas. You can find more details on data frame below and all the codes are included on "app.R" file in Shiny App folder.
 
 
 # Data
