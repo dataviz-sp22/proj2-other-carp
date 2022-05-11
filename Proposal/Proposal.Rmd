@@ -128,5 +128,8 @@ Below is the code book:
 
 # Github Organization
 
+# References
+Zhukov, Yuri (2022). "VIINA: Violent Incident Information from News Articles on the 2022 Russian Invasion of Ukraine." Ann Arbor: University of Michigan, Center for Political Studies. (https://github.com/zhukovyuri/VIINA, accessed 05/11/2022).
+
 
 
