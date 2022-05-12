@@ -102,11 +102,85 @@ Below is the code book:
 
 
 # Analysis/Graph Outline
+## The more specific goals of our visualization and analysis
+In our visualization, we would like to combine the information from both datasets to create one map with switchable layers. As a result, the user will be able to see both the events and the territorial division at a given point in time (rather than separately like in the dataset author's own visualizations https://github.com/zhukovyuri/VIINA). Moreover, our goal is to vastly improve the number and quality of features as well as aesthetics as compared to the existing Shiny App based on the VIINA project: https://schardata.shinyapps.io/viina/. We hope that the end result of our project will be attractive to the author of the dataset, his original audience, and broader groups of people interested in the past and current states of the ongoing war.
+
+In our analysis, we are especially interested in two broad questions:
+
+1. How do the sides of the conflict compare? In particular, how they have been affected relatively to each other in terms of the type and the number of events; how does their activity differ, especially in the case of events that do not depend on being the invader vs. the the defender; how does the control by a given side impact the event type occurrence?
+
+2. How ...
+
+	• Which regions were most affected?
+		○ event types
+		○ event count
+		○ event density
+	• How has the war been developing? Spatial network analysis.
+		○ directionality in events by type over time
+		○ spatial or temporal relationships between event types
+			• distance from point X
+	• How will the war develop?
+		○ (simple model of) extrapolation of trends from X days and in X regions
+
+## Tools of analysis
+	• network analysis
+		○ centrality
+		○ connectedness
+		
+		
+If the events are nodes are ... and ties are ..., then .... .  
 
 
+	• Count the time controlled by each party and visually represent it
+		○ perhaps as alpha or a scale that goes from one color to the next
+
+## Graph details
+
+Ideas for graph(s):
+	• timeline interval width selection and shifting
+	• show the time when X percent was under the Russian occupation
+	• show the time when region X was under the Russian occupation
+	• Event counter to date or between dates
+	• Indicate/filter source origin (at least case by case, like in the original viz)
+	
+Graphs generated as shots of what the interactive viz shows
+
+The graph will show the map of Ukraine as a part of a larger world atlas (like OpenStreetMap). On the map, there will be a timeline axis with a scalable and shiftable interval. The endpoints of the interval will be able to be determined numerically as well.
+
+Below the graph, there will be feature selectors. There will be the following primary features:
+	• show the territorial division (based on the territorial control dataset). 
+		○ show or highlight only one of the sides of conflict
+
+And we will add some of the following additional features:
+	• save the map as an image file
+	• show event details
+		○ title
+		○ type of event
+		○ text
+		○ time
+		○ address
+		○ lon/lat of event
+		○ url
+	• show only event reports of types X, Y, Z
+		○ a tree: military/non-military boxes and then each of the more specific category boxes
+		○ boxes independent of military/non-military classification (e.g. by whom it was initiated)
+
+	• not just a map, but also:
+		○ barplot()
+		○ graph of events over time and facet by location?
+		○ or geofacet()?
+
+In terms of geoms:
+	• geom_point(), of course
+	• geom_label()?
+	• geom_density_2d() with mods
+	• choropleth AND heatmap as derivatives of maps with points (e.g. counts)
 
 
-
+# Limitations
+How ... The location or affiliation of the news source ... reported may be crucial for understanding the results ... 
+		○ add source origin (Ukrainian vs. Russian, regardless of language)
+		enhancing the dataset itself is beyond the scope of our project.
 
 # Schedule
 
@@ -123,8 +197,6 @@ Below is the code book:
 
 ## Week 5 (May 30 - )  
 - present
-
-
 
 # Github Organization
 We have three folders: Data, Proposal and Shiny App. You will find our latest data sets regarding the events and controlled area under Data folder. You will find our proposal under Proposal folder. You will find our demonstration under Shiny App folder.
