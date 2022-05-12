@@ -172,12 +172,9 @@ In terms of geoms:
 	• choropleth AND heatmap as derivatives of maps with points (e.g. counts)
 
 # Limitations and Suggestions for Future Research
-How ... The location or affiliation of the news source ... reported may be crucial for understanding the results ... 
-		○ add source origin (Ukrainian vs. Russian, regardless of language)
-		enhancing the dataset itself is beyond the scope of our project.
-		
-			• How will the war develop?
-		○ (simple model of) extrapolation of trends from X days and in X regions
+The location or the affiliation of the news source that reported an event may be crucial for understanding the results of analysis, as the freedom of press and the journalistic standards likely vary drastically between Ukraine and Russia. Thus, future research could add a variable and a corresponding app feature that enables the distiction between the Ukrainian and Russian sources. However, enhancing the dataset itself is beyond the scope of our project.
+
+Future research could also develop and implement in a visualized form predictions about the spatial developments of the war over time.
 
 # Schedule
 
