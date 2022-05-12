@@ -17,7 +17,6 @@ We choose this topic because all of us are concerned about international confron
 
 What we want to do is to use shiny app and interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different time frame. The GOAL is to create pieces of "generative" art, ie., pieces of art that have been generated using computer input and mathematical formulas. You can find more details on data frame below and all the codes are included on "app.R" file in Shiny App folder.
 
-
 # Data
 We will use the VIINA (Violent Incident Information from News Articles on the 2022 Russian Invasion of Ukraine) data set collected by Professor Yuri Zhukov from the University of Michigan (see [full list here](https://github.com/zhukovyuri/VIINA)). This is the most comprehensive data set from the internet, which provides us extensive information to visualize, and to recover deep insights.
 
@@ -101,47 +100,47 @@ Below is the code book:
 - ctr_[YYYYMMDDHHMMSS]: Control status, with timestamp (UA/RU/CONTESTED)
 
 
-# Analysis/Graph Outline
-## The more specific goals of our visualization and analysis
-In our visualization, we would like to combine the information from both datasets to create one map with switchable layers. As a result, the user will be able to see both the events and the territorial division at a given point in time (rather than separately like in the dataset author's own visualizations https://github.com/zhukovyuri/VIINA). Moreover, our goal is to vastly improve the number and quality of features as well as aesthetics as compared to the existing Shiny App based on the VIINA project: https://schardata.shinyapps.io/viina/. We hope that the end result of our project will be attractive to the author of the dataset, his original audience, and broader groups of people interested in the past and current states of the ongoing war.
+# Analysis Outline
+## The goals of our analysis
 
 In our analysis, we are especially interested in two broad questions:
 
 1. How do the sides of the conflict compare? In particular, how they have been affected relatively to each other in terms of the type and the number of events; how does their activity differ, especially in the case of events that do not depend on being the invader vs. the the defender; how does the control by a given side impact the event type occurrence?
 
-2. How ...
+2. How can the events improve our spatial understanding of the war? More specifically, how do areas of Ukraine differ in terms of event type, count, and density? Which regions were most affected? How have the centers of gravity of the war events (broadly or narrowly defined) shifted and changed their importance over time?
 
-	• Which regions were most affected?
-		○ event types
-		○ event count
-		○ event density
-	• How has the war been developing? Spatial network analysis.
-		○ directionality in events by type over time
-		○ spatial or temporal relationships between event types
-			• distance from point X
-	• How will the war develop?
-		○ (simple model of) extrapolation of trends from X days and in X regions
+## Approach and Tools of Analysis
 
-## Tools of analysis
-	• network analysis
+For the first question, important ... Count the time controlled by each party and visually represent it
+		○ perhaps as alpha or a scale that goes from one color to the next
+While the map is not necessary to answer this question, a bar chart ..
+ 
+	network analysis
 		○ centrality
 		○ connectedness
 		
-		
 If the events are nodes are ... and ties are ..., then .... .  
 
+# Visualization Outline
+## Bar charts
+1. How do the sides of the conflict compare? In particular, how they have been affected relatively to each other in terms of the type and the number of events; how does their activity differ, especially in the case of events that do not depend on being the invader vs. the the defender; how does the control by a given side impact the event type occurrence?
 
-	• Count the time controlled by each party and visually represent it
-		○ perhaps as alpha or a scale that goes from one color to the next
+		○ barplot()
+		○ graph of events over time and facet by location?
+		○ or geofacet()?
 
-## Graph details
+## Map
+In our visualization, we would like to combine the information from both datasets to create one map with switchable layers. As a result, the user will be able to see both the events and the territorial division at a given point in time (rather than separately like in the dataset author's own visualizations https://github.com/zhukovyuri/VIINA). Moreover, our goal is to vastly improve the number and quality of features as well as aesthetics as compared to the existing Shiny App based on the VIINA project: https://schardata.shinyapps.io/viina/. We hope that the end result of our project will be attractive to the author of the dataset, his original audience, and broader groups of people interested in the past and current states of the ongoing war.
 
+
+## Map details
 Ideas for graph(s):
 	• timeline interval width selection and shifting
-	• show the time when X percent was under the Russian occupation
-	• show the time when region X was under the Russian occupation
-	• Event counter to date or between dates
 	• Indicate/filter source origin (at least case by case, like in the original viz)
+
+	• show the time when X percent was under the Russian occupation
+	• show the times when region X was under the Russian occupation on the timeline
+	• Event counter up to a specific date or between dates
 	
 Graphs generated as shots of what the interactive viz shows
 
@@ -164,11 +163,7 @@ And we will add some of the following additional features:
 	• show only event reports of types X, Y, Z
 		○ a tree: military/non-military boxes and then each of the more specific category boxes
 		○ boxes independent of military/non-military classification (e.g. by whom it was initiated)
-
-	• not just a map, but also:
-		○ barplot()
-		○ graph of events over time and facet by location?
-		○ or geofacet()?
+- show event distance from point X
 
 In terms of geoms:
 	• geom_point(), of course
@@ -176,11 +171,13 @@ In terms of geoms:
 	• geom_density_2d() with mods
 	• choropleth AND heatmap as derivatives of maps with points (e.g. counts)
 
-
-# Limitations
+# Limitations and Suggestions for Future Research
 How ... The location or affiliation of the news source ... reported may be crucial for understanding the results ... 
 		○ add source origin (Ukrainian vs. Russian, regardless of language)
 		enhancing the dataset itself is beyond the scope of our project.
+		
+			• How will the war develop?
+		○ (simple model of) extrapolation of trends from X days and in X regions
 
 # Schedule
 
