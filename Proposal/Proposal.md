@@ -10,30 +10,42 @@ attention, and recover deep insights to make peace.
 
 Russian-Ukraine crisis is a long lasting problem and it caused countless
 casualties nearly everyday. The earliest big confrontation can be dated
-back to 2014, when two cities from Ukraine (Donetsk and Luhansk) started
-revolution. From 2014 to 2022, there are several small military events
-and non-military but violent events happened at the boarder of
-Russia-Ukraine. In 2022, concerning the East expansion of NATO, Russia
-started a war against Ukraine and brings up the confrontation. Many
-people are killed and many cities are destroyed during the war. In this
-project, we want to build a shiny app to illustrate the military events
-happened during the recent 2022 Russia-Ukraine war and keep track of the
-territory boundary or military marching of soldiers from two sides.
+back to 2014, when pro-Russian separatists in two cities in Ukraine,
+Donetsk and Luhansk, started revolts. From 2014 to 2022, there were
+several small military events and non-military but violent events
+happened in Ukraine in the area close to the Russian-Ukrainian border.
+In 2022, allegedly concerned with the potential Eastward expansion of
+NATO, Russia started a war against Ukraine by attacking targets in the
+whole country using air weapons and by invading its land territory from
+multiple sides at the same time. Millions of refugees fled the country,
+dozens of thousands of people including civilians have been killed in
+targeted and untargeted attacks, many people have been tortured and
+robbed of their life assets, and many cities have been destroyed within
+several weeks. In this project, we want to build a shiny app to
+illustrate the military events happened during the recent 2022
+Russia-Ukraine war and keep track of the territory boundary or military
+marching of soldiers from two sides.
 
-We choose this topic because all of us are concerned about international
-confrontations. We hope that the world is peaceful and there is no war
-or violent event exist any more. Also, it would be interesting to take a
-look at the which place has the most attackers or military actions, and
-which side has the relative advantages as the battles continued. If we
-can plot every single events on a map, we will be able to discover some
-patterns such as which area or city has the most violent event happen
-and hopefully, we can prevent the same attacks from happening again.
+We have chosen this topic, because all of us are concerned about
+international confrontations. We wish the world were peaceful and there
+were no wars or violent events anymore.
 
-What we want to do is to use shiny app and interactive plots to live
-demonstrate the process of Russia-Ukraine war, including the territory
-movement, military and non-military events across different time frame.
-The GOAL is to create pieces of “generative” art, ie., pieces of art
-that have been generated using computer input and mathematical formulas.
+We are also motivated by the opportunity of enhancing the study of the
+war in its specific aspects, such as place has the most attackers or
+military actions, and which side has the relative advantages as the
+battles continue. If we can plot every single events on a map, we will
+be able to discover some patterns such as which area or city has the
+most violent event happen. Perhaps insights with tools such as ours
+could be somehow used prevent the same attacks from happening again.
+
+We want to use shiny app and interactive plots to live demonstrate the
+process of Russia-Ukraine war, including the territory movement,
+military and non-military events across different timeframes.
+
+A higher-level goal is to create pieces of “generative” art, ie., pieces
+of art that have been generated using computer input and mathematical
+formulas.
+
 You can find more details on data frame below and all the codes are
 included on “app.R” file in Shiny App folder.
 
@@ -284,34 +296,22 @@ In our analysis, we are especially interested in two broad questions:
     the centers of gravity of the war events (broadly or narrowly
     defined) shifted and changed their importance over time?
 
-## Approach and Tools of Analysis
+## Minor Remarks Regarding the Tools of Analysis
 
-For the first question, important … Count the time controlled by each
-party and visually represent it ○ perhaps as alpha or a scale that goes
-from one color to the next While the map is not necessary to answer this
-question, a bar chart ..
+For the first question, it will be useful to determine the impact each
+side of the conflict had on a given territory with relation to the
+events there. This can be achieved by counting the time a region is
+controlled by each side. Then, on the map, this could be represented by
+an alpha value or a scale that goes from one color to the next.
 
-    network analysis
-        ○ centrality
-        ○ connectedness
-        
-
-If the events are nodes are … and ties are …, then …. .
+For the second question, a network analysis can be useful: If the events
+are nodes and the temporal or spatial distances between them are ties
+(with strenghts proportional to the distances), then we can obtain the
+centrality and connectedness of various locations in Ukraine as measures
+of their importance in the war. These two values, in turn, can be
+represented on the map as the sizes of the nodes.
 
 # Visualization Outline
-
-## Bar charts
-
-1.  How do the sides of the conflict compare? In particular, how they
-    have been affected relatively to each other in terms of the type and
-    the number of events; how does their activity differ, especially in
-    the case of events that do not depend on being the invader vs. the
-    the defender; how does the control by a given side impact the event
-    type occurrence?
-
-         ○ barplot()
-         ○ graph of events over time and facet by location?
-         ○ or geofacet()?
 
 ## Map
 
@@ -327,49 +327,85 @@ result of our project will be attractive to the author of the dataset,
 his original audience, and broader groups of people interested in the
 past and current states of the ongoing war.
 
-## Map details
-
-Ideas for graph(s): • timeline interval width selection and shifting •
-Indicate/filter source origin (at least case by case, like in the
-original viz)
-
-    • show the time when X percent was under the Russian occupation
-    • show the times when region X was under the Russian occupation on the timeline
-    • Event counter up to a specific date or between dates
-
-Graphs generated as shots of what the interactive viz shows
+Graphs will (hopefully) be able to be generated as shots of what the
+interactive visualization is showing with the specified parameters.
 
 The graph will show the map of Ukraine as a part of a larger world atlas
-(like OpenStreetMap). On the map, there will be a timeline axis with a
-scalable and shiftable interval. The endpoints of the interval will be
-able to be determined numerically as well.
+(like OpenStreetMap).
 
-Below the graph, there will be feature selectors. There will be the
-following primary features: • show the territorial division (based on
-the territorial control dataset). ○ show or highlight only one of the
-sides of conflict
+### Map details
 
-And we will add some of the following additional features: • save the
-map as an image file • show event details ○ title ○ type of event ○ text
-○ time ○ address ○ lon/lat of event ○ url • show only event reports of
-types X, Y, Z ○ a tree: military/non-military boxes and then each of the
-more specific category boxes ○ boxes independent of
-military/non-military classification (e.g. by whom it was initiated) -
-show event distance from point X
+In terms of geoms, the map will containt `geom_point()` and
+`geom_density_2d()` with appropriate modifications. The `geom_label()`
+function does not seem too useful, but we will consider adding it.
 
-In terms of geoms: • geom_point(), of course • geom_label()? •
-geom_density_2d() with mods • choropleth AND heatmap as derivatives of
-maps with points (e.g. counts)
+We would like the app to generate maps with both choropleths and
+heatmaps as derivatives (sort of) of maps with points (e.g. a map with
+points being a more fundamental version of a density map).
+
+We are considering the following main features of the map generator:
+
+    • Select and shift of the time interval width on a timeline. On the map, there will be a timeline axis with a scalable and shiftable interval. The endpoints of the interval will be able to be determined numerically as well.
+
+    • Indicate and/or filter source origin (at least case by case, like in the original visualization)
+
+    • Show the time when X percent was under the Russian occupation
+
+    • Show the times when region X was under the Russian occupation on the timeline
+
+    • Include an event counter up to a specific date or between dates
+
+    • Show the territorial division (based on the territorial control dataset). Show or highlight only one of the sides of conflict
+
+We are also considering the following additional features:
+
+    • save the map as an image file
+
+    • show event details
+        ○ title
+        ○ type of event
+        ○ text
+        ○ time
+        ○ address
+        ○ lon/lat of event
+        ○ url
+        
+    • show only event reports of types X, Y, Z
+        ○ Add a tree: military/non-military selector boxes first and then each of the more specific category selector boxes
+        ○ Add also boxes independent of military/non-military classification (e.g. by whom it was initiated)
+
+## Bar charts
+
+Bar charts will be helpful to generate whenever the user is less
+interested in the geographic location and more interested in direct or
+precise comparisons between spatial units. This seems especially
+relevant for question 1, where the location matters less than a the mere
+assignment to a particular side of the conflict.
+
+In terms of geoms, we will consider using `geom_bar` and `geom_col()`.
+We will allow the user to facet by location with `facet_wrap()` function
+and/or the `geofacet` package.
+
+## Line trends
+
+We will allow the user to generate plots of events over time with
+`geom_line()` and apply filters to modify narrow the data sample or make
+cross-group comparisons, such as the number of tank battles or assults
+by the side controlling the territory in the first month of the
+conflict.
 
 # Limitations and Suggestions for Future Research
 
-How … The location or affiliation of the news source … reported may be
-crucial for understanding the results … ○ add source origin (Ukrainian
-vs. Russian, regardless of language) enhancing the dataset itself is
+The location or the affiliation of the news source that reported an
+event may be crucial for understanding the results of analysis, as the
+freedom of press and the journalistic standards likely vary drastically
+between Ukraine and Russia. Thus, future research could add a variable
+and a corresponding app feature that enables the distiction between the
+Ukrainian and Russian sources. However, enhancing the dataset itself is
 beyond the scope of our project.
 
-            • How will the war develop?
-        ○ (simple model of) extrapolation of trends from X days and in X regions
+Future research could also develop and implement in a visualized form
+predictions about the spatial developments of the war over time.
 
 # Schedule
 
