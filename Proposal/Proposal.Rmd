@@ -113,7 +113,7 @@ Below is the code book:
 
 In our analysis, we are especially interested in two broad questions:
 
-1. How do the sides of the conflict compare? In particular, how they have been affected relatively to each other in terms of the type and the number of events; how does their activity differ, especially in the case of events that do not depend on being the invader vs. the the defender; how does the control by a given side impact the event type occurrence?
+1. How do the sides of the conflict compare? In particular, how they have been affected relatively to each other in terms of the type and the number of events; how does their activity differ, especially in the case of events that do not depend on being the invader vs. the the defender(what we mean here is that along with the war, not only Russian-Ukraine troops harm civilians, but other non-military events such as robbery); how does the control by a given side impact the event type occurrence?
 
 2. How can the events improve our spatial understanding of the war? More specifically, how do areas of Ukraine differ in terms of event type, count, and density? Which regions were most affected? How have the centers of gravity of the war events (broadly or narrowly defined) shifted and changed their importance over time?
 
