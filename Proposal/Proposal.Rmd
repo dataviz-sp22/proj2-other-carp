@@ -21,8 +21,6 @@ We are also motivated by the opportunity of enhancing the study of the war in it
 
 We want to use shiny app and interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different timeframes. 
 
-A higher-level goal is to create pieces of "generative" art, ie., pieces of art that have been generated using computer input and mathematical formulas. 
-
 You can find more details on data frame below and all the codes are included on "app.R" file in Shiny App folder.
 
 # Data
@@ -33,7 +31,9 @@ It's a near-real time multi-source event data system based on news reports from 
 ## Event data
 
 ```{r}
-event <- read.csv(here("Data", "events_latest.csv"))
+event <- read.csv(here("Data", "events_latest.csv")) %>%
+  select(6:18) %>%
+  select(!address)
 head(event)
 ```
 
