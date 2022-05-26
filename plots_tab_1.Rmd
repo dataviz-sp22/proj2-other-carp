@@ -1,0 +1,97 @@
+
+## Packages
+```{r packages}
+library(tidyverse)
+```
+
+## Load the data
+```{r data}
+
+mydata_c <-  read_csv("Data/control_latest.csv")
+mydata_e <-  read_csv("Data/events_latest.csv")
+
+```
+
+## Line Chart
+Variables needed:
+
+- `date`
+- count for events
+- initiated
+
+
+- two vertical lines: start date in range, end date in range
+
+- horizontal time axis from the first to the last day in the dataset
+
+- vertical axis being the number of events
+
+- two separate lines (shapes and colors): one for events initiated by the  Ukrainian forces, the other for events initiated by the Russian forces
+
+Steps:
+1: filter out (remove) events initiated by neither party
+2: filter out other events
+3: count the number of events
+
+```{r line data prep}
+mydata_line_plot <- mydata_e
+
+# example input
+year_start <- 20220224
+year_end <- 20220312
+event_selected <- c("t_airstrike_b", "t_armor_b")
+
+# prepare a binary variable indicating which of the two sides initiated the event
+mydata_line_plot$initiated <- case_when(
+  mydata_line_plot$a_rus_b == 1 ~ "Russia-initiated",
+  mydata_line_plot$a_ukr_b == 1 ~ "Ukraine-initiated",
+)
+
+# filter out (remove) events initiated by neither party
+mydata_line_plot <- mydata_line_plot %>% filter(is.na(mydata_line_plot$initiated) == FALSE)
+
+# to subset the data to the selected variables:
+# we generalize this:
+# mydata_e <- mydata_e %>% subset(t_airstrike_b!=0 | t_armor_b!=0) 
+# to this:
+mydata_line_plot <- mydata_line_plot %>% subset(get(event_selected[1])!=0 | get(event_selected[2])!=0)
+# thanks to a very useful get() command: https://cran.r-project.org/doc/FAQ/R-FAQ.html#How-can-I-turn-a-string-into-a-variable_003f
+# we we further generalize by looping over the variable: 
+# INCORRECT CODE. WHAT I WANT TO DO IS TO MAKE SURE AT LEAST ONE OF THE VARIABLES IN THE LIST IS 1. 
+#for(i in 1:length(event_selected)) {
+#  mydata_line_plot <- mydata_line_plot %>% subset(get(event_selected[i])==1)
+#}
+# GOOD CODE HERE:
+# any_of() takes a character vector with the names of the columns we want to consider. Then if_any() takes the columns as arguments to check if at least one of them meets the specified condition.
+mydata_line_plot <- mydata_line_plot %>% filter(if_any(any_of(event_selected)) == 1)
+
+# count the number of events
+mydata_line_plot <- mydata_line_plot %>% count(date, initiated, sort = TRUE)
+
+# calculate the cumulative sum over time, grouped by the country that initiated the event
+# https://datacornering.com/cumulative-sum-or-count-in-r/
+mydata_line_plot <- mydata_line_plot %>%
+  group_by(initiated) %>%
+  arrange(date, decreasing = FALSE) %>%
+  mutate("n_cum" = cumsum(n))
+```
+
+```{r line}
+ggplot(mydata_line_plot, aes(x = date, y = n_cum, color = initiated, linetype = initiated)) +
+geom_line() +
+geom_vline(xintercept = year_start, color = "grey50") +
+geom_vline(xintercept = year_end, color = "grey50")
+```
+
+## Bar chart
+Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
+horizontal bars
+Regions of ukraine on the left axis
+Total number of all selected event types for the specified time range
+Each bar divided into different colors corresponding to different event types
+
+```{r bar}
+# filter out events outside of the date range
+# IS THIS CORRECT? SIMPLY PUTTING GREATER OR EQUAL?
+# mydata_e <- mydata_e %>% filter(date <= year_end & date >= year_start)
+```
