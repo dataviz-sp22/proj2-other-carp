@@ -437,15 +437,10 @@ mydata_line_plot &lt;- mydata_line_plot %&gt;% filter(is.na(mydata_line_plot$ini
 # we generalize this:
 # mydata_e &lt;- mydata_e %&gt;% subset(t_airstrike_b!=0 | t_armor_b!=0) 
 # to this:
-mydata_line_plot &lt;- mydata_line_plot %&gt;% subset(get(event_selected[1])!=0 | get(event_selected[2])!=0)
+# mydata_line_plot &lt;- mydata_line_plot %&gt;% subset(get(event_selected[1])!=0 | get(event_selected[2])!=0)
 # thanks to a very useful get() command: https://cran.r-project.org/doc/FAQ/R-FAQ.html#How-can-I-turn-a-string-into-a-variable_003f
-# we we further generalize by looping over the variable: 
-# INCORRECT CODE. WHAT I WANT TO DO IS TO MAKE SURE AT LEAST ONE OF THE VARIABLES IN THE LIST IS 1. 
-#for(i in 1:length(event_selected)) {
-#  mydata_line_plot &lt;- mydata_line_plot %&gt;% subset(get(event_selected[i])==1)
-#}
-# GOOD CODE HERE:
-# any_of() takes a character vector with the names of the columns we want to consider. Then if_any() takes the columns as arguments to check if at least one of them meets the specified condition.
+# we further generalize for any number of event variables selected by the user: 
+### any_of() takes a character vector with the names of the columns we want to consider. Then if_any() takes the columns as arguments to check if at least one of them meets the specified condition.
 mydata_line_plot &lt;- mydata_line_plot %&gt;% filter(if_any(any_of(event_selected)) == 1)
 
 # count the number of events
