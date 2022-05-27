@@ -1,0 +1,99 @@
+---
+title: "Untitled"
+author: "Zihan Zhu"
+output: html_document
+---
+
+```{r library, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(leaflet)
+library(leaflet.extras)
+library(ggplot2)
+library(readr)
+library(htmltools)
+library(lubridate)
+```
+
+
+```{r data}
+control_latest <- read_csv("Data/control_latest.csv")
+events_latest <- read_csv("Data/events_latest.csv")
+```
+
+```{r data wrangle}
+events_map <- events_latest%>%
+  mutate(mil_type = case_when(t_mil_b == 1 ~ "Military",
+                              t_nmil_b == 1 ~ "Non Military"),
+         initiator = case_when(a_rus_b == 1 ~ "Russia",
+                               a_ukr_b == 1 ~ "Ukraine",
+                               a_civ_b == 1 ~ "Ambiguous",
+                               a_other_b == 1 ~ "Ambiguous",
+                               TRUE ~ "Ambiguous"),
+         evt_type = case_when(t_aad_b == 1 ~ "Anti-air Defense",
+                              t_airstrike_b == 1 ~ "Air Strike",
+                              t_armor_b == 1 ~ "Tank Battle",
+                              t_arrest_b == 1 ~ "Arrest by Security Services",
+                              t_artillery_b == 1 ~ "Artillery Strike",
+                              t_firefight_b == 1 ~ "Gun Fire",
+                              t_ied_b == 1 ~ "Bomb",
+                              t_raid_b == 1 ~ "Special Forces/Paratroopers",
+                              t_cyber_b == 1 ~ "Cyber Attack",
+                              t_hospital_b == 1 ~ "Hospital/Humanitarian Attack",
+                              t_occupy_b == 1 ~ "Control of Territory",
+                              t_control_b == 1 ~ "Control of Territory",
+                              t_property_b == 1 ~ "Destruction of Property",
+                              TRUE ~ "Ambiguous"),
+         mil_cas = ifelse(t_milcas_b == 1, "Yes", "No"),
+         civ_cas = ifelse(t_civcas_b == 1, "Yes", "No"))
+
+#dates
+class(events_map$date)
+events_map$date <- ymd(events_map$date)
+
+#clickable urls
+events_map$url <- paste0("<a href='",events_map$url,"'>",events_map$url,"</a>")
+
+# Color scale for mil_type
+events_map$mil_type <- as.factor(events_map$mil_type)
+pal <- colorFactor(palette=c("#DA291C","#414141"), domain=events_map$mil_type)
+
+# Color scale for evt_type
+events_map$evt_type <- as.factor(events_map$evt_type)
+pal <- colorFactor(palette="inferno", domain=events_map$evt_type)
+
+# Color scale for initiator
+events_map$initiator <- as.factor(events_map$initiator)
+pal <- colorFactor(palette=c("Gray","Red","Blue"), domain=events_map$initiator)
+```
+
+
+
+```{r maps}
+leaflet(events_map) %>%
+  addProviderTiles("Esri") %>%
+  setView(lng =32.1656, lat = 47.5794, zoom = 6) %>%
+  addCircleMarkers(
+    ~longitude,~latitude,
+    color = ~pal(events_map$evt_type),
+    radius = 5,
+    fillOpacity = 0.5,
+    stroke = FALSE
+  )%>%
+  leaflet.extras::addResetMapButton()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
