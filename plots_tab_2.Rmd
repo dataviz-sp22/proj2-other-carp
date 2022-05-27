@@ -1,0 +1,66 @@
+
+## Packages
+```{r packages}
+library(tidyverse)
+library(ggplot2)
+library(sf)
+
+```
+
+## Load the data
+
+```{r data}
+shp <- st_read("Data/shp_city/pp624tm0074.shp") %>%
+  select(name_1, name_2)
+
+
+start <- "20220227"
+end <- "20220501"
+
+ctr_start <- paste0("ctr_", start)
+ctr_end <- paste0("ctr_", end)
+
+control <-  read_csv("Data/control_latest.csv") %>%
+  select(geonameid, longitude, latitude, 
+         contains(ctr_start), contains(ctr_end)) %>%
+  reshape2::melt(id.vars = c("longitude", "latitude", "geonameid"),
+                 value.name = "control") %>%
+  mutate(date = substr(variable, 5, 12),
+         control = ifelse(control == "UA",1,
+                          ifelse(control == "RU", 2, 3))) %>%
+  group_by(geonameid, longitude, latitude, date) %>%
+  summarise(control = mode(control)) %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+           crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
+  st_join(shp, left = FALSE) %>%
+  st_drop_geometry() %>%
+  group_by(name_1, name_2, date) %>%
+  summarise(control = mode(control)) %>%
+  mutate(control = ifelse(control == "1","UA",
+                          ifelse(control == "2", "RU", "Contested"))) %>%
+  spread(key = date, value = control) 
+
+control$control_clean <- ifelse(get(start, control) == "UA" 
+                                & get(end, control) == "RU", 
+                                "UA2RU", "")
+control$control_clean <- ifelse(get(start, control) == "RU" 
+                                & get(end, control) == "UA", 
+                                "RU2UA", control$control_clean)
+control$control_clean <- ifelse(get(start, control) == get(end, control), 
+                                get(start, control), control$control_clean)
+control$control_clean <- ifelse(control$control_clean == "",
+                                get(end, control), control$control_clean)
+
+control <-  sp::merge(shp, control,
+                      by = c("name_1", "name_2"), all=F)
+
+
+ggplot(data = control) +
+  geom_sf(aes(fill=control_clean)) +
+  scale_fill_manual(values = c("RU" = "firebrick1",
+                               "UA2RU" = "hotpink",
+                               "UA" = "goldenrod1",
+                               "RU2UA" = "yellow2",
+                               "Contested"="blue"))
+
+```
