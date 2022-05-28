@@ -2,6 +2,7 @@
 ## Packages
 ```{r packages}
 library(tidyverse)
+library(sf)
 ```
 
 ## Load the data
@@ -12,7 +13,12 @@ mydata_e <-  read_csv("Data/events_latest.csv")
 
 ```
 
+## Clean the datasets
+TO DO: delete the unnecessary columns (machine learning algorithm scores, so the ones with the `_pred` suffix.)
+
 ## Line Chart
+TO DO: clean the code (e.g. complete pipes)
+
 Variables needed:
 
 - `date`
@@ -79,14 +85,83 @@ geom_vline(xintercept = year_end, color = "grey50")
 ```
 
 ## Bar chart
-Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
-horizontal bars
-Regions of ukraine on the left axis
-Total number of all selected event types for the specified time range
-Each bar divided into different colors corresponding to different event types
+TO DO: 
+- clean the code (e.g. complete pipes)
+- rename `name_1` to  more intuitive variable name
 
-```{r bar}
+- Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
+- horizontal bars
+- Regions of ukraine on the left axis
+- Total number of all selected event types for the specified time range
+- Each bar divided into different colors corresponding to different event types
+
+```{r data prep}
+mydata_col_plot <- mydata_e %>% select(-ends_with("_pred"))
+
+shp <- st_read("Data/shp_city/pp624tm0074.shp")
+
+# Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
+mydata_col_plot <- mydata_col_plot %>%
+st_as_sf(coords = c("longitude", "latitude"),
+           crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
+  st_join(shp, left = FALSE) %>%
+  st_drop_geometry() %>%
+  rename(region = name_1)
+```
+
+
+```{r get and transform user input}
+
+# example input
+year_start <- 20220224
+year_end <- 20220312
+event_selected <- c("t_airstrike_b", "t_armor_b")
+
+mydata_col_plot <- mydata_col_plot %>% filter(if_any(any_of(event_selected)) == 1)
+
 # filter out events outside of the date range
-# IS THIS CORRECT? SIMPLY PUTTING GREATER OR EQUAL?
-# mydata_e <- mydata_e %>% filter(date <= year_end & date >= year_start)
+mydata_col_plot <- mydata_col_plot %>% filter(date <= year_end & date >= year_start)
+
+# Count the number of events by event type.The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
+#for (i in 1:length(event_selected)) {
+#  assign(
+#  paste0(event_selected[i], "_sum"),
+#  eval(str2expression(paste0("sum(mydata_col_plot$", event_selected[i], #")"))),
+#  )
+#}
+
+sums_all_events <- tibble(.rows = length(event_selected))
+sums_all_events$event_type <- ""
+sums_all_events$event_sum <- NA
+
+for (i in 1:length(event_selected)) {
+  sums_all_events$event_type[i] <- event_selected[i]
+  sums_all_events$event_sum[i] <- mydata_col_plot %>% select(contains(event_selected[i])) %>% sum()
+}
+
+#sums_all_events <- c()
+#for (i in 1:length(event_selected)) {
+#  sums_all_events <- c(sums_all_events, #eval(str2expression(paste0("sum(mydata_col_plot$", event_selected[i], #")"))))
+#}
+
+
+# count the total number of events
+
+# mydata_col_plot <- mydata_col_plot %>%
+#  group_by(name_1, event_type) %>%
+#  count(name_1, event_type)
+
+```
+
+
+```{r generate the bar chart (column plot)}
+
+# horizontal bars
+ggplot(mydata_col_plot, aes(x = name_1, y = n, fill = event_type)) +
+  geom_col()
+  
+```
+
+```{r col}
+
 ```
