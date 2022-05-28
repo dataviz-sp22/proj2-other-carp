@@ -122,6 +122,31 @@ mydata_col_plot <- mydata_col_plot %>% filter(if_any(any_of(event_selected)) == 
 # filter out events outside of the date range
 mydata_col_plot <- mydata_col_plot %>% filter(date <= year_end & date >= year_start)
 
+# Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
+regions_list <- unique(mydata_col_plot$region)
+
+sums_all_events <- tibble()
+for (i in 1:length(regions_list)) {
+  temp <- tibble(.rows = 1)
+  temp$event_region <- ""
+  temp$event_type <- ""
+  temp$event_sum <- NA
+  for (j in 1:length(event_selected)) {
+    temp$event_region <- regions_list[i]
+    temp$event_type <- event_selected[j]
+    temp$event_sum <- mydata_col_plot %>% 
+      filter(region == regions_list[i]) %>%
+      select(contains(event_selected[j])) %>% 
+      sum()
+    sums_all_events <- bind_rows(sums_all_events, temp)
+  }
+}
+
+mydata_col_plot <- sums_all_events
+
+```
+
+```{r old code, eval=FALSE, include=FALSE}
 # Count the number of events by event type.The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
 #for (i in 1:length(event_selected)) {
 #  assign(
@@ -130,13 +155,32 @@ mydata_col_plot <- mydata_col_plot %>% filter(date <= year_end & date >= year_st
 #  )
 #}
 
-sums_all_events <- tibble(.rows = length(event_selected))
-sums_all_events$event_type <- ""
-sums_all_events$event_sum <- NA
+# { sums_all_events <- tibble(.rows = length(regions_list) * length(event_selected))
+# sums_all_events$event_region <- ""
+# sums_all_events$event_type <- ""
+# sums_all_events$event_sum <- NA }
 
-for (i in 1:length(event_selected)) {
-  sums_all_events$event_type[i] <- event_selected[i]
-  sums_all_events$event_sum[i] <- mydata_col_plot %>% select(contains(event_selected[i])) %>% sum()
+for (i in 1:length(regions_list)) {
+  print(paste0("i:", i))
+  print(paste0("region (outside):", regions_list[i]))
+  for (j in 1:length(event_selected)) {
+    print(paste0("j:", j))
+    print(paste0("event:", event_selected[j]))
+    print(paste0("i + j - 1:", i+j-1))
+    print(paste0("region in i+j-1:", sums_all_events$event_region[i+j-1]))
+    sums_all_events$event_region[i+j-1] <- regions_list[i]
+    print(paste0("region in i+j-1:", sums_all_events$event_region[i+j-1]))
+    print(paste0("region (inside):", regions_list[i]))
+    sums_all_events$event_type[i+j-1] <- event_selected[j]
+    sums_all_events$event_sum[i+j-1] <- mydata_col_plot %>% 
+      filter(region == regions_list[i]) %>%
+      select(contains(event_selected[j])) %>% 
+      sum()
+    print(mydata_col_plot %>% 
+      filter(region == regions_list[i]) %>%
+      select(contains(event_selected[j])) %>% 
+      sum())
+  }
 }
 
 #sums_all_events <- c()
@@ -155,10 +199,15 @@ for (i in 1:length(event_selected)) {
 
 
 ```{r generate the bar chart (column plot)}
-
 # horizontal bars
-ggplot(mydata_col_plot, aes(x = name_1, y = n, fill = event_type)) +
-  geom_col()
+ggplot(sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
+  geom_col() +
+  labs(y = "Region", x = "Event Type") +
+  theme(
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+  )
   
 ```
 
