@@ -9,8 +9,8 @@ library(shinyWidgets)
 library(colorblindr)
 
 #open data to get factor levels for UI
-control_latest <- read_csv("control_latest.csv")
-events_latest <- read_csv("events_latest.csv")
+control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
+events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
 
 #Data Wrangling
 
@@ -64,7 +64,7 @@ pal <- colorFactor(palette="viridis", domain=events_map$evt_type)
 
 
 ############################## UI #################################
-############################## 鈫撯啌 #################################
+############################## ????????????? #################################
 
 
 # I create more than 3 selection bars, but only 3 are shown. 
@@ -151,6 +151,7 @@ server <- function(input, output) {
     leafletProxy("map", data = events_map_fil()) %>%
       clearMarkers() %>%
       clearControls()%>%
+      clearMarkerClusters()%>%
       addCircleMarkers(~longitude, ~latitude,
                        color = ~pal(events_map_fil()$evt_type),
                        radius = 4,
@@ -158,23 +159,24 @@ server <- function(input, output) {
                        stroke = FALSE,
                        popup  = paste("Date", events_map_fil()$date, "<br>",
                                       "Time", events_map_fil()$time, "<br>",
-                                      "Event Type:", events_map_fil()$mil_type, "<br>",
+                                      "Event Type:", events_map_fil()$evt_type, "<br>",
                                       "Initiator:", events_map_fil()$initiator, "<br>",
                                       "Military Casualities Reported:", events_map_fil()$mil_cas, "<br>",
                                       "Civilian Casualities Reported:", events_map_fil()$civ_cas, "<br>",
-                                      "Url:", events_map_fil()$url))%>%
+                                      "Url:", events_map_fil()$url),
+                       clusterOptions = markerClusterOptions())%>%
       addLegend(title = "Event Type",
         pal = pal,
         values = ~evt_type
       )
   })
 }
-############################## 鈫戔啈鈫戔啈鈫戔啈鈫? #################################
+############################## ?????????????????????????????????????????????? #################################
 ############################## SERVER #################################
 #
 #
 #
 #
 ############################## COMPILE #################################
-############################## 鈫撯啌鈫撯啌鈫撯啌 #################################
+############################## ???????????????????????????????????????? #################################
 shinyApp(ui, server)
