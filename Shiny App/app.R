@@ -6,7 +6,7 @@ library(shiny)
 library(htmltools)
 library(leaflet.extras)
 library(shinyWidgets)
-library(colorblindr)
+#library(colorblindr)
 
 #open data to get factor levels for UI
 control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
