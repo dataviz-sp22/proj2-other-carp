@@ -6,13 +6,40 @@ library(shiny)
 library(htmltools)
 library(leaflet.extras)
 library(shinyWidgets)
+library(sf)
 #library(colorblindr)
 
 #open data to get factor levels for UI
 control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
 events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+shp <- st_read("shp_city/pp624tm0074.shp")
 
 #Data Wrangling
+## Column plot data prep
+### Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
+col_plot_data_1 <- events_latest %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+           crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
+  st_join(shp, left = FALSE) %>%
+  st_drop_geometry() %>%
+  mutate(evt_type = as.factor(case_when(t_aad_b == 1 ~ "t_airstrike_b",
+                                t_airstrike_b == 1 ~ "t_airstrike_b",
+                                t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
+                                t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_firefight_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_ied_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_raid_b == 1 ~ "Cyber Attack/Paratroopers",
+                                t_cyber_b == 1 ~ "Cyber Attack/Paratroopers",
+                                t_hospital_b == 1 ~ "Arrest by Security Services/Hospital Attack",
+                                t_occupy_b == 1 ~ "Control/Destroy of Territory",
+                                t_control_b == 1 ~ "Control/Destroy of Territory",
+                                t_property_b == 1 ~ "Control/Destroy of Territory",
+                                TRUE ~ "Ambiguous"))) %>%
+  rename(region = name_1)
+
+regions_list <- unique(col_plot_data_1$region)
+
 
 events_map <- events_latest%>%
   mutate(mil_type = case_when(t_mil_b == 1 ~ "Military",
@@ -24,8 +51,8 @@ events_map <- events_latest%>%
                                TRUE ~ "Ambiguous"),
          # The category criteria are based on my own scale. You are welcome to modify it
          # if you have reasonable suggestions
-         evt_type = case_when(t_aad_b == 1 ~ "Air Strike/Defense",
-                              t_airstrike_b == 1 ~ "Air Strike/Defense",
+         evt_type = case_when(t_aad_b == 1 ~ "t_airstrike_b",
+                              t_airstrike_b == 1 ~ "t_airstrike_b",
                               t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
                               t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
                               t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
@@ -98,7 +125,7 @@ ui <- fluidPage(
                  size = 10,
                  `selected-text-format` = "count > 3"
                ),
-               selected = "Air Strike/Defense"
+               selected = "t_airstrike_b"
              ),
              pickerInput(
                inputId = "sources",
@@ -112,7 +139,11 @@ ui <- fluidPage(
                multiple = TRUE,
                selected = levels(events_map$source),
              )),
-             mainPanel(leafletOutput(outputId = "map")))
+             mainPanel(
+               leafletOutput(outputId = "map"),
+               plotOutput(outputId = "bar_plot"),
+               )
+             )
             # place line plots and bar plots here
              ),
     # Tabset 2 for control maps
@@ -138,6 +169,48 @@ server <- function(input, output) {
       filter(source %in% input$sources)
   })
   
+  col_plot_data_2 <- reactive({
+    req(input$dateRange)
+    col_plot_data_1 %>%
+      filter(between(date, input$dateRange[1], input$dateRange[2]))%>%
+      filter(evt_type %in% input$event_type) %>%
+      filter(source %in% input$sources)
+  })
+  
+  ### Bar plot code
+  output$bar_plot <- renderPlot({
+    ### Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
+    event_selected <- reactive({input$event_type})
+    sums_all_events <- tibble()
+    for (i in 1:length(regions_list)) {
+      temp <- tibble(.rows = 1)
+      temp$event_region <- ""
+      temp$event_type <- ""
+      temp$event_sum <- NA
+      for (j in 1:length(event_selected())) {
+        temp$event_region <- regions_list[i]
+        temp$event_type <- event_selected()[j]
+        temp$event_sum <- col_plot_data_2() %>% 
+          filter(region == regions_list[i]) %>%
+          select(contains(event_selected()[j])) %>% 
+          sum()
+        sums_all_events <- bind_rows(sums_all_events, temp)
+      }
+    }
+    
+    # generate the bar chart (column plot) with horizontal bars
+    ggplot(data = sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
+      geom_col() +
+      labs(y = "Region", x = "Event Type") +
+      theme(
+        legend.position = "bottom",
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank()
+      )
+    
+  }, res = 96)
+
+
   # Draw the map
   output$map <- renderLeaflet({
     leaflet() %>%

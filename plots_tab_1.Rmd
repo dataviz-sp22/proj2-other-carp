@@ -3,6 +3,7 @@
 ```{r packages, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(sf)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 ```
 
 ## Load the data
@@ -124,7 +125,7 @@ mydata_col_plot <- sums_all_events
 
 ```{r generate the bar chart (column plot)}
 # horizontal bars
-ggplot(sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
+ggplot(mydata_col_plot, aes(x = event_sum, y = event_region, fill = event_type)) +
   geom_col() +
   labs(y = "Region", x = "Event Type") +
   theme(
