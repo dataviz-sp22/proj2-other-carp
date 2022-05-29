@@ -27,8 +27,8 @@ shp <- st_read("Data/shp_city/pp624tm0074.shp") %>%
 start <- "20220227"
 end <- "20220501"
 
-ctr_start <- paste0("ctr_", start)
-ctr_end <- paste0("ctr_", end)
+ctr_start <- paste0("ctr_", start_ctr)
+ctr_end <- paste0("ctr_", end_ctr)
 
 control <-  read_csv("Data/control_latest.csv") %>%
   dplyr::select(geonameid, longitude, latitude, 
@@ -37,11 +37,7 @@ control <-  read_csv("Data/control_latest.csv") %>%
                  value.name = "control") %>%
   mutate(date = substr(variable, 5, 12),
          control = ifelse(control == "UA",1,
-                          ifelse(control == "RU", 2, 3))) 
-
-control_max_date <- max(control$date)
-
-control <- control %>%
+                          ifelse(control == "RU", 2, 3)))  %>%
   group_by(geonameid, longitude, latitude, date) %>%
   summarise(control = mode(control)) %>%
   st_as_sf(coords = c("longitude", "latitude"),

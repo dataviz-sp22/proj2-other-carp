@@ -6,11 +6,22 @@ library(shiny)
 library(htmltools)
 library(leaflet.extras)
 library(shinyWidgets)
+library(sf)
+library(ggalluvial)
+library(here)
+library(units)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 #library(colorblindr)
 
 #open data to get factor levels for UI
 control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
 events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+
+#function
+mode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
 #Data Wrangling
 
@@ -62,6 +73,20 @@ pal <- colorFactor(palette="viridis", domain=events_map$evt_type)
 #pal <- colorFactor(palette=c("Gray","Red","Blue"), domain=events_map$initiator)
 
 
+## Control part
+shp <- st_read("Data/shp_city/pp624tm0074.shp") %>%
+  dplyr::select(name_1, name_2)
+
+
+control_date_max <- names(control_latest) %>%
+  grep("ctr_", ., value = TRUE) %>%
+  max(.) %>%
+  substr(., 5, 12)
+
+control_date_max <- paste0(substr(control_date_max, 1, 4),'-',
+                           substr(control_date_max, 5, 6),'-',
+                           substr(control_date_max, 7, 8))
+
 
 ############################## UI #################################
 ############################## ????????????? #################################
@@ -76,7 +101,9 @@ ui <- fluidPage(
             sidebarLayout(sidebarPanel(dateRangeInput(inputId = "dateRange", 
                             label = "Date range:",
                             start = "2022-02-23",
-                            end = Sys.Date()),
+                            end = control_date_max,
+                            min = "2022-02-23",
+                            max = control_date_max),
              #selectInput(inputId = "initiator", 
                          #label = "Initiator:",
                          #choices = c("Russia" = "Russia",
@@ -117,9 +144,18 @@ ui <- fluidPage(
              ),
     # Tabset 2 for control maps
     tabPanel(title = "Control Mapping",
+             sidebarLayout(sidebarPanel(dateRangeInput(inputId = "datecontrol", 
+                                                       label = "Date range:",
+                                                       start = "2022-02-27",
+                                                       end = control_date_max,
+                                                       min = "2022-02-27",
+                                                       max = control_date_max)),
+             mainPanel(
+               plotOutput(outputId = "control_map"),
+               plotOutput(outputId = "control_bar")
+               ),
              )
-  ),
-)
+)))
 
 
 
@@ -127,6 +163,7 @@ ui <- fluidPage(
 ###################################################################
 server <- function(input, output) {
   
+  #---------------------First Tab---------------------------------------------
   # Create reactive data
   events_map_fil <- reactive({
     req(input$dateRange)
@@ -170,13 +207,106 @@ server <- function(input, output) {
         values = ~evt_type
       )
   })
+  #---------------------Second Tab---------------------------------------------
+  # Create reactive data
+
+  
+  control <- reactive({
+    req(input$datecontrol)
+    start <- input$datecontrol[1] %>%
+      str_replace_all(., "-", "")
+    end <- input$datecontrol[2] %>%
+      str_replace_all(., "-", "")
+    
+    
+    control <- control_latest %>%
+      dplyr::select(geonameid, longitude, latitude, 
+                    contains(start), contains(end)) %>%
+      reshape2::melt(id.vars = c("longitude", "latitude", "geonameid"),
+                     value.name = "control") %>%
+      mutate(date = substr(variable, 5, 12),
+             control = ifelse(control == "UA",1,
+                              ifelse(control == "RU", 2, 3)))  %>%
+      group_by(geonameid, longitude, latitude, date) %>%
+      summarise(control = mode(control)) %>%
+      st_as_sf(coords = c("longitude", "latitude"),
+               crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
+      st_join(shp, left = FALSE) %>%
+      st_drop_geometry() %>%
+      group_by(name_1, name_2, date) %>%
+      summarise(control = mode(control)) %>%
+      mutate(control = ifelse(control == "1","UA",
+                              ifelse(control == "2", "RU", "Contested"))) %>%
+      spread(key = date, value = control) 
+    
+    control$Country <- ifelse(get(start, control) == "UA" 
+                              & get(end, control) == "RU", 
+                              "UA2RU", "")
+    control$Country <- ifelse(get(start, control) == "RU" 
+                              & get(end, control) == "UA", 
+                              "RU2UA", control$Country)
+    control$Country <- ifelse(get(start, control) == get(end, control), 
+                              get(start, control), control$Country)
+    control$Country <- ifelse(control$Country == "",
+                              get(end, control), control$Country)
+    control$Country <- ifelse(is.na(control$Country), "UA", control$Country)
+    
+    control <-  sp::merge(shp, control,
+                          by = c("name_1", "name_2"), all=F)
+    
+    control
+  })
+  
+  output$control_map <- renderPlot({
+    ggplot(data = control()) +
+      geom_sf(aes(fill=Country)) +
+      scale_fill_manual(values = c("RU" = "firebrick1",
+                                   "UA2RU" = "hotpink",
+                                   "UA" = "goldenrod1",
+                                   "RU2UA" = "yellow2",
+                                   "Contested"="blue"))
+  })
+  
+  
+  df_area <- reactive({
+    control() %>%
+      mutate(area = st_area(.)) %>%
+      st_drop_geometry() %>%
+      dplyr::select(-Country) %>%
+      reshape2::melt(id.vars = c("name_1", "name_2", "area"),
+                     value.name = "control") %>%
+      dplyr::rename(date = variable) %>%
+      mutate(control = ifelse(is.na(control), "UA", control),
+             area = drop_units(area)) %>%
+      mutate(control = factor(control, levels= rev(c("UA", "RU", "Contested"))),
+             date = factor(date)) %>%
+      group_by(date, control) %>%
+      dplyr::summarise(area = sum(area)) %>%
+      group_by(date) %>%
+      mutate(total_area = sum(area),
+             prop = round(area/total_area,3)*100) %>%
+      rename(Country = control)
+  })
+  
+  
+  output$control_bar <- renderPlot({
+    ggplot(df_area(),
+           aes(y = prop, x = date)) +
+      geom_flow(aes(alluvium = Country), alpha= .9, 
+                lty = 2, fill = "white", color = "black",
+                curve_type = "linear", 
+                width = .5) +
+      geom_col(aes(fill = Country), width = .5, color = "black") +
+      scale_fill_manual(values = c("RU" = "firebrick1",
+                                   "UA" = "goldenrod1",
+                                   "Contested" = "blue")) +
+      scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+      labs(title = "Percentage of area controled by each country",
+           x = "Date",
+           y = "Percentage")
+  })
+  
 }
-############################## ?????????????????????????????????????????????? #################################
-############################## SERVER #################################
-#
-#
-#
-#
 ############################## COMPILE #################################
 ############################## ???????????????????????????????????????? #################################
 shinyApp(ui, server)
