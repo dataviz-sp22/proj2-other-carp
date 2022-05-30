@@ -22,7 +22,7 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 #events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
 control_latest <- read_csv("control_latest.csv")
 events_latest <- read_csv("events_latest.csv")
-shp <- st_read("shp_city/pp624tm0074.shp")
+shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
 mode <- function(v) {
@@ -56,8 +56,17 @@ col_plot_data_1 <- events_latest %>%
 
 regions_list <- unique(col_plot_data_1$region)
 
+## Line chart data prep
+line_plot_data <- events_latest
 
-events_map <- events_latest%>%
+### prepare a binary variable indicating which of the two sides initiated the event
+line_plot_data$initiated <- case_when(
+  line_plot_data$a_rus_b == 1 ~ "Russia-initiated event",
+  line_plot_data$a_ukr_b == 1 ~ "Ukraine-initiated event",
+)
+
+## Map data prep
+events_map <- events_latest %>%
   mutate(mil_type = case_when(t_mil_b == 1 ~ "Military",
                               t_nmil_b == 1 ~ "Non Military"),
          initiator = case_when(a_rus_b == 1 ~ "Russia",
@@ -89,6 +98,7 @@ events_map$source <- as.factor(events_map$source)
 class(events_map$date)
 events_map$date <- ymd(events_map$date)
 col_plot_data_1$date <- ymd(col_plot_data_1$date)
+line_plot_data$date <- ymd(line_plot_data$date)
 
 #clickable urls
 events_map$url <- paste0("<a href='",events_map$url,"'>",events_map$url,"</a>")
@@ -175,6 +185,7 @@ ui <- fluidPage(
              mainPanel(
                leafletOutput(outputId = "map"),
                plotOutput(outputId = "bar_plot"),
+               plotOutput(outputId = "line_plot"),
                )
              )
             # place line plots and bar plots here
@@ -220,7 +231,55 @@ server <- function(input, output) {
       filter(source %in% input$sources)
   })
   
-  ### Bar plot code
+  ### Generate the line chart
+  output$line_plot <- renderPlot({
+    
+    start_date <- reactive({input$dateRange[1]})
+    end_date <- reactive({input$dateRange[2]})
+    
+    event_selected <- reactive({
+      case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
+                input$event_type == "Air Strike/Defense" ~ "t_aad_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Ambiguous" ~ "ambiguous",
+      )
+    })
+    
+    ### filter out (remove) events initiated by neither party
+    line_plot_data <- line_plot_data %>%
+      filter(is.na(line_plot_data$initiated) == FALSE) %>%
+      filter(if_any(any_of(event_selected())) == 1) %>% # count the number of events
+      count(date, initiated, sort = TRUE) %>% # calculate the cumulative sum over time, grouped by the country that initiated the event
+      # https://datacornering.com/cumulative-sum-or-count-in-r/
+      group_by(initiated) %>%
+      arrange(date, decreasing = FALSE) %>%
+      mutate("n_cum" = cumsum(n))
+    
+    # generate the bar chart (column plot) with horizontal bars
+    ggplot(line_plot_data, aes(x = date, y = n_cum, color = initiated, linetype = initiated)) +
+      geom_line() +
+      geom_vline(xintercept = start_date(), color = "grey50") +
+      geom_vline(xintercept = end_date(), color = "grey50") +
+      labs(
+        x = "Date",
+        y = "Cumulative number of events",
+        color = NULL,
+        linetype = NULL,
+      )
+  }, res = 96)
+  
+  
+  ### Generate the bar plot
   output$bar_plot <- renderPlot({
     ### Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
     event_selected <- reactive({
