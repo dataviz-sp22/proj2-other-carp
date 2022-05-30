@@ -141,54 +141,66 @@ ui <- fluidPage(
   tabsetPanel(
     # Tabset 1 for maps
     tabPanel(title = "Events Mapping",
-            sidebarLayout(sidebarPanel(dateRangeInput(inputId = "dateRange", 
-                            label = "Date range:",
-                            start = "2022-02-23",
-                            end = control_date_max,
-                            min = "2022-02-23",
-                            max = control_date_max),
-             #selectInput(inputId = "initiator", 
-                         #label = "Initiator:",
-                         #choices = c("Russia" = "Russia",
-                           #"Ukraine" = "Ukraine",
-                           #"Ambiguous" = "Ambiguous"),
-                         #selected = "Russia",
-                         #multiple = TRUE),
-             #selectInput(inputId = "mil_type", 
-                         #label = "Military Type:",
-                         #choices = c("Military" = "Military",
-                           #"Non-military" = "Not Military")),
-             pickerInput(
-               inputId = "event_type",
-               label = "Event Type",
-               choices = levels(events_map$evt_type),
-               multiple = TRUE,
-               options = list(
-                 `actions-box` = TRUE,
-                 size = 10,
-                 `selected-text-format` = "count > 3"
-               ),
-               selected = "Air Strike/Defense"
+             fluidRow(
+               column(4,
+                      dateRangeInput(inputId = "dateRange", 
+                                                  label = "Date range:",
+                                                  start = "2022-02-23",
+                                                  end = control_date_max,
+                                                  min = "2022-02-23",
+                                                  max = control_date_max)
+                                   #selectInput(inputId = "initiator", 
+                                   #label = "Initiator:",
+                                   #choices = c("Russia" = "Russia",
+                                   #"Ukraine" = "Ukraine",
+                                   #"Ambiguous" = "Ambiguous"),
+                                   #selected = "Russia",
+                                   #multiple = TRUE),
+                                   #selectInput(inputId = "mil_type", 
+                                   #label = "Military Type:",
+                                   #choices = c("Military" = "Military",
+                                   #"Non-military" = "Not Military")),
+                      ),
+               column(4,
+                      pickerInput(
+                        inputId = "event_type",
+                        label = "Event Type",
+                        choices = levels(events_map$evt_type),
+                        multiple = TRUE,
+                        options = list(
+                          `actions-box` = TRUE,
+                          size = 10,
+                          `selected-text-format` = "count > 3"
+                                       ),
+                        selected = "Air Strike/Defense"
+                                  ),
+                      ),
+               column(4,
+                      pickerInput(
+                        inputId = "sources",
+                        label = "Select News Source:",
+                        choices = levels(events_map$source),
+                        options = list(
+                          `actions-box` = TRUE,
+                          size = 10,
+                          `selected-text-format` = "count > 3"
+                        ),
+                        multiple = TRUE,
+                        selected = levels(events_map$source),
+                                  )
+                      ),
+                      ),
+             fluidRow(
+                 leafletOutput(outputId = "map"),
              ),
-             pickerInput(
-               inputId = "sources",
-               label = "Select News Source:",
-               choices = levels(events_map$source),
-               options = list(
-                 `actions-box` = TRUE,
-                 size = 10,
-                 `selected-text-format` = "count > 3"
-               ),
-               multiple = TRUE,
-               selected = levels(events_map$source),
-             )),
-             mainPanel(
-               leafletOutput(outputId = "map"),
-               plotOutput(outputId = "bar_plot"),
-               plotOutput(outputId = "line_plot"),
-               )
-             )
-            # place line plots and bar plots here
+            fluidRow(
+              column(4,
+                     plotOutput(outputId = "line_plot"),
+              ),
+              column(8,
+                     plotOutput(outputId = "bar_plot"),
+              )
+            ),
              ),
     # Tabset 2 for control maps
     tabPanel(title = "Control Mapping",
@@ -275,8 +287,14 @@ server <- function(input, output) {
         y = "Cumulative number of events",
         color = NULL,
         linetype = NULL,
-      )
-  }, res = 96)
+      ) +
+    theme(
+      legend.position = "bottom",
+      legend.margin = margin(1, 1, 1, 1),
+      plot.margin = unit(c(1, 0, 1, 0), "cm"),
+    ) +
+    guides(color = guide_legend(nrow = 2, byrow=TRUE))
+  }, height = 400, res = 96)
   
   
   ### Generate the bar plot
@@ -334,13 +352,21 @@ server <- function(input, output) {
     # generate the bar chart (column plot) with horizontal bars
     ggplot(data = sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
       geom_col() +
-      labs(y = "Region", x = "Number of events within the specified time range", fill = "Event Type") +
+      labs(
+        y = "Region", 
+        x = "Number of events within the specified time range", 
+        fill = NULL
+         ) +
       theme(
         legend.position = "bottom",
         panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank()
-      )
-  }, res = 96)
+        panel.grid.minor.y = element_blank(),
+        legend.margin = margin(1, 2.5, 1, 1, unit = "cm"),
+        plot.margin = unit(c(1, 1, 1, 0), "cm"),
+        axis.title.y = element_text(hjust = 1, vjust = 1.05, angle = 0, margin = margin(r = -2.5, l = 2.5, unit = "cm")),
+      ) +
+      guides(fill = guide_legend(nrow=3, byrow=TRUE))
+  }, height = 600, res = 96)
 
 
   # Draw the map
