@@ -94,6 +94,7 @@ control_date_max <- paste0(substr(control_date_max, 1, 4),'-',
 
 # I create more than 3 selection bars, but only 3 are shown. 
 ui <- fluidPage(
+  theme = shinytheme("superhero"),
   titlePanel(title = "Russia-Ukraine Crises"),
   tabsetPanel(
     # Tabset 1 for maps

@@ -12,6 +12,11 @@ library(sf)
 library(ggalluvial)
 library(here)
 library(units)
+library(thematic)
+library(shinythemes)
+
+thematic_shiny()
+
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 #######
 ####### b0f98526fe6d0fdef1bc5f98885bff8a0babacfd
@@ -137,7 +142,8 @@ control_date_max <- paste0(substr(control_date_max, 1, 4),'-',
 
 # I create more than 3 selection bars, but only 3 are shown. 
 ui <- fluidPage(
-  titlePanel(title = "Russia-Ukraine Crises"),
+  theme = shinytheme("superhero"),
+  titlePanel(title = "The Russio-Ukrainian War"),
   tabsetPanel(
     # Tabset 1 for maps
     tabPanel(title = "Events Mapping",
