@@ -1,5 +1,6 @@
 # Load library
 library(tidyverse)
+library(expss)
 library(lubridate)
 library(leaflet)
 library(shiny)
@@ -7,18 +8,20 @@ library(htmltools)
 library(leaflet.extras)
 library(shinyWidgets)
 library(sf)
-<<<<<<< HEAD
+####### HEAD
 library(ggalluvial)
 library(here)
 library(units)
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
-=======
->>>>>>> b0f98526fe6d0fdef1bc5f98885bff8a0babacfd
+#######
+####### b0f98526fe6d0fdef1bc5f98885bff8a0babacfd
 #library(colorblindr)
 
 #open data to get factor levels for UI
-control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
-events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+#control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
+#events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+control_latest <- read_csv("control_latest.csv")
+events_latest <- read_csv("events_latest.csv")
 shp <- st_read("shp_city/pp624tm0074.shp")
 
 #function
@@ -35,8 +38,8 @@ col_plot_data_1 <- events_latest %>%
            crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
   st_join(shp, left = FALSE) %>%
   st_drop_geometry() %>%
-  mutate(evt_type = as.factor(case_when(t_aad_b == 1 ~ "t_airstrike_b",
-                                t_airstrike_b == 1 ~ "t_airstrike_b",
+  mutate(evt_type = as.factor(case_when(t_aad_b == 1 ~ "Air Strike/Defense",
+                                t_airstrike_b == 1 ~ "Air Strike/Defense",
                                 t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
                                 t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
                                 t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
@@ -64,8 +67,8 @@ events_map <- events_latest%>%
                                TRUE ~ "Ambiguous"),
          # The category criteria are based on my own scale. You are welcome to modify it
          # if you have reasonable suggestions
-         evt_type = case_when(t_aad_b == 1 ~ "t_airstrike_b",
-                              t_airstrike_b == 1 ~ "t_airstrike_b",
+         evt_type = case_when(t_aad_b == 1 ~ "Air Strike/Defense",
+                              t_airstrike_b == 1 ~ "Air Strike/Defense",
                               t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
                               t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
                               t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
@@ -85,6 +88,7 @@ events_map$source <- as.factor(events_map$source)
 #dates
 class(events_map$date)
 events_map$date <- ymd(events_map$date)
+col_plot_data_1$date <- ymd(col_plot_data_1$date)
 
 #clickable urls
 events_map$url <- paste0("<a href='",events_map$url,"'>",events_map$url,"</a>")
@@ -154,7 +158,7 @@ ui <- fluidPage(
                  size = 10,
                  `selected-text-format` = "count > 3"
                ),
-               selected = "t_airstrike_b"
+               selected = "Air Strike/Defense"
              ),
              pickerInput(
                inputId = "sources",
@@ -201,7 +205,7 @@ server <- function(input, output) {
   events_map_fil <- reactive({
     req(input$dateRange)
     events_map %>%
-      filter(between(date, input$dateRange[1], input$dateRange[2]))%>%
+      filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
       #filter(initiator %in% input$initiator) %>%
       filter(evt_type %in% input$event_type) %>%
@@ -211,7 +215,7 @@ server <- function(input, output) {
   col_plot_data_2 <- reactive({
     req(input$dateRange)
     col_plot_data_1 %>%
-      filter(between(date, input$dateRange[1], input$dateRange[2]))%>%
+      filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       filter(evt_type %in% input$event_type) %>%
       filter(source %in% input$sources)
   })
@@ -219,7 +223,23 @@ server <- function(input, output) {
   ### Bar plot code
   output$bar_plot <- renderPlot({
     ### Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
-    event_selected <- reactive({input$event_type})
+    event_selected <- reactive({
+      case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
+                input$event_type == "Air Strike/Defense" ~ "t_aad_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Ambiguous" ~ "ambiguous",
+                )
+      })
     sums_all_events <- tibble()
     for (i in 1:length(regions_list)) {
       temp <- tibble(.rows = 1)
@@ -237,16 +257,30 @@ server <- function(input, output) {
       }
     }
     
+    sums_all_events <- sums_all_events %>% mutate(event_type = case_when(
+      event_type == "t_aad_b" ~ "Air Strike/Defense",
+      event_type ==  "t_airstrike_b" ~ "Air Strike/Defense",
+      event_type == "t_armor_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_arrest_b"  ~ "Arrest by Security Services/Hospital Attack",
+      event_type == "t_artillery_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_firefight_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_ied_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_raid_b"  ~ "Cyber Attack/Paratroopers",
+      event_type == "t_cyber_b"  ~ "Cyber Attack/Paratroopers",
+      event_type == "t_hospital_b"  ~ "Arrest by Security Services/Hospital Attack",
+      event_type == "t_occupy_b"  ~ "Control/Destroy of Territory",
+      event_type == "t_control_b"  ~ "Control/Destroy of Territory",
+      event_type == "t_property_b"  ~ "Control/Destroy of Territory"))
+    
     # generate the bar chart (column plot) with horizontal bars
     ggplot(data = sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
       geom_col() +
-      labs(y = "Region", x = "Event Type") +
+      labs(y = "Region", x = "Number of events within the specified time range", fill = "Event Type") +
       theme(
         legend.position = "bottom",
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank()
       )
-    
   }, res = 96)
 
 
