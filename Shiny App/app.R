@@ -142,7 +142,7 @@ control_date_max <- paste0(substr(control_date_max, 1, 4),'-',
 # 3 selection bars
 ui <- fluidPage(
   theme = shinytheme("superhero"),
-  titlePanel(title = "The Russio-Ukrainian War"),
+  titlePanel(title = "The Russo-Ukrainian War"),
   tabsetPanel(
     # Tabset 1 for maps
     tabPanel(title = "Events Mapping",
