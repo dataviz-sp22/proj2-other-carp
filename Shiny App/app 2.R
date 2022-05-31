@@ -153,18 +153,6 @@ ui <- fluidPage(
                                                   end = control_date_max,
                                                   min = "2022-02-23",
                                                   max = control_date_max),
-                                   pickerInput(inputId = "initiator", 
-                                   label = "Initiator:",
-                                   choices = c("Russia" = "Russia",
-                                   "Ukraine" = "Ukraine",
-                                   "Ambiguous" = "Ambiguous"),
-                                   selected = "Russia",
-                                   options = list(
-                                     `actions-box` = TRUE,
-                                     size = 10,
-                                     `selected-text-format` = "count > 3"
-                                   ),
-                                   multiple = TRUE),
                                    #selectInput(inputId = "mil_type", 
                                    #label = "Military Type:",
                                    #choices = c("Military" = "Military",
@@ -183,6 +171,18 @@ ui <- fluidPage(
                                        ),
                         selected = "Air Strike/Defense"
                                   ),
+                      pickerInput(inputId = "initiator", 
+                                  label = "Initiator:",
+                                  choices = c("Russia" = "Russia",
+                                              "Ukraine" = "Ukraine",
+                                              "Ambiguous" = "Ambiguous"),
+                                  selected = "Russia",
+                                  options = list(
+                                    `actions-box` = TRUE,
+                                    size = 10,
+                                    `selected-text-format` = "count > 3"
+                                  ),
+                                  multiple = TRUE),
                       ),
                column(4,
                       pickerInput(
@@ -196,11 +196,11 @@ ui <- fluidPage(
                         ),
                         multiple = TRUE,
                         selected = levels(events_map$source),
-                                  )
+                      )
                       ),
                       ),
              fluidRow(
-                 leafletOutput(outputId = "map"),
+                 leafletOutput(outputId = "map", height = 600),
              ),
             fluidRow(
               column(4,
@@ -245,8 +245,7 @@ server <- function(input, output) {
   #---------------------First Tab---------------------------------------------
   # Create reactive data
   events_map_fil <- reactive({
-    req(input$dateRange)
-    req(input$event_type)
+    req(input$dateRange, input$initiator, input$event_type, input$sources)
     events_map %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
@@ -256,7 +255,7 @@ server <- function(input, output) {
   })
   
   col_plot_data_2 <- reactive({
-    req(input$dateRange)
+    req(input$dateRange, input$event_type, input$sources)
     col_plot_data_1 %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       filter(evt_type %in% input$event_type) %>%
@@ -264,6 +263,7 @@ server <- function(input, output) {
   })
   
   ### Generate the line chart
+  ### In the next version of the app, add an input to switch between n_cum and n.
   output$line_plot <- renderPlot({
     
     start_date <- reactive({input$dateRange[1]})
@@ -304,7 +304,8 @@ server <- function(input, output) {
       geom_vline(xintercept = end_date(), color = "grey50") +
       labs(
         x = "Date",
-        y = "Cumulative number of events",
+        y = NULL,
+        title = "Cumulative number of events",
         color = NULL,
         linetype = NULL,
       ) +
@@ -369,12 +370,15 @@ server <- function(input, output) {
       event_type == "t_control_b"  ~ "Control/Destroy of Territory",
       event_type == "t_property_b"  ~ "Control/Destroy of Territory"))
     
+    # order by number
+    sums_all_events$event_region = factor(sums_all_events$event_region, levels = sums_all_events[order(sums_all_events$event_sum),]$event_region)
     # generate the bar chart (column plot) with horizontal bars
     ggplot(data = sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
       geom_col() +
       labs(
         y = "Region", 
-        x = "Number of events within the specified time range", 
+        x = NULL,
+        title = "Number of events within the specified time range", 
         fill = NULL
          ) +
       theme(
