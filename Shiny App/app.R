@@ -1,5 +1,6 @@
 # Load library
 library(tidyverse)
+library(expss)
 library(lubridate)
 library(leaflet)
 library(shiny)
@@ -10,12 +11,23 @@ library(sf)
 library(ggalluvial)
 library(here)
 library(units)
+library(thematic)
+library(shinythemes)
+
+thematic_shiny()
 ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
-#library(colorblindr)
+
 
 #open data to get factor levels for UI
 control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
 events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+#write.csv(control_latest, "Data/control_latest.csv")
+#write.csv(events_latest, "Data/events_latest.csv")
+
+# use local copies:
+# control_latest <- read_csv("control_latest.csv")
+# events_latest <- read_csv("events_latest.csv")
+shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
 mode <- function(v) {
@@ -24,8 +36,42 @@ mode <- function(v) {
 }
 
 #Data Wrangling
+## Column plot data prep
+### Assign events to specific regions with the help of spatial joint and a shapefile of Ukraine divided into regions.
+col_plot_data_1 <- events_latest %>%
+  st_as_sf(coords = c("longitude", "latitude"),
+           crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
+  st_join(shp, left = FALSE) %>%
+  st_drop_geometry() %>%
+  mutate(evt_type = as.factor(case_when(t_aad_b == 1 ~ "Air Strike/Defense",
+                                t_airstrike_b == 1 ~ "Air Strike/Defense",
+                                t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
+                                t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_firefight_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_ied_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_raid_b == 1 ~ "Cyber Attack/Paratroopers",
+                                t_cyber_b == 1 ~ "Cyber Attack/Paratroopers",
+                                t_hospital_b == 1 ~ "Arrest by Security Services/Hospital Attack",
+                                t_occupy_b == 1 ~ "Control/Destroy of Territory",
+                                t_control_b == 1 ~ "Control/Destroy of Territory",
+                                t_property_b == 1 ~ "Control/Destroy of Territory",
+                                TRUE ~ "Ambiguous"))) %>%
+  rename(region = name_1)
 
-events_map <- events_latest%>%
+regions_list <- unique(col_plot_data_1$region)
+
+## Line chart data prep
+line_plot_data <- events_latest
+
+### prepare a binary variable indicating which of the two sides initiated the event
+line_plot_data$initiated <- case_when(
+  line_plot_data$a_rus_b == 1 ~ "Russia-initiated event",
+  line_plot_data$a_ukr_b == 1 ~ "Ukraine-initiated event",
+)
+
+## Map data prep
+events_map <- events_latest %>%
   mutate(mil_type = case_when(t_mil_b == 1 ~ "Military",
                               t_nmil_b == 1 ~ "Non Military"),
          initiator = case_when(a_rus_b == 1 ~ "Russia",
@@ -56,6 +102,8 @@ events_map$source <- as.factor(events_map$source)
 #dates
 class(events_map$date)
 events_map$date <- ymd(events_map$date)
+col_plot_data_1$date <- ymd(col_plot_data_1$date)
+line_plot_data$date <- ymd(line_plot_data$date)
 
 #clickable urls
 events_map$url <- paste0("<a href='",events_map$url,"'>",events_map$url,"</a>")
@@ -89,74 +137,136 @@ control_date_max <- paste0(substr(control_date_max, 1, 4),'-',
 
 
 ############################## UI #################################
-############################## ????????????? #################################
 
 
-# I create more than 3 selection bars, but only 3 are shown. 
+# 3 selection bars
 ui <- fluidPage(
   theme = shinytheme("superhero"),
-  titlePanel(title = "Russia-Ukraine Crises"),
+  titlePanel(title = "The Russio-Ukrainian War"),
   tabsetPanel(
     # Tabset 1 for maps
     tabPanel(title = "Events Mapping",
-            sidebarLayout(sidebarPanel(dateRangeInput(inputId = "dateRange", 
-                            label = "Date range:",
-                            start = "2022-02-23",
-                            end = control_date_max,
-                            min = "2022-02-23",
-                            max = control_date_max),
-             #selectInput(inputId = "initiator", 
-                         #label = "Initiator:",
-                         #choices = c("Russia" = "Russia",
-                           #"Ukraine" = "Ukraine",
-                           #"Ambiguous" = "Ambiguous"),
-                         #selected = "Russia",
-                         #multiple = TRUE),
-             #selectInput(inputId = "mil_type", 
-                         #label = "Military Type:",
-                         #choices = c("Military" = "Military",
-                           #"Non-military" = "Not Military")),
-             pickerInput(
-               inputId = "event_type",
-               label = "Event Type",
-               choices = levels(events_map$evt_type),
-               multiple = TRUE,
-               options = list(
-                 `actions-box` = TRUE,
-                 size = 10,
-                 `selected-text-format` = "count > 3"
+             fluidRow(
+               column(4,
+                      dateRangeInput(inputId = "dateRange", 
+                                     label = "Date range:",
+                                     start = "2022-02-23",
+                                     end = control_date_max,
+                                     min = "2022-02-23",
+                                     max = control_date_max),
                ),
-               selected = "Air Strike/Defense"
+               column(4,
+                      pickerInput(
+                        inputId = "event_type",
+                        label = "Event Type",
+                        choices = levels(events_map$evt_type),
+                        multiple = TRUE,
+                        options = list(
+                          `actions-box` = TRUE,
+                          size = 10,
+                          `selected-text-format` = "count > 3"
+                        ),
+                        selected = levels(events_map$evt_type)
+                      ),
+                      pickerInput(inputId = "initiator", 
+                                  label = "Initiator:",
+                                  choices = c("Russia" = "Russia",
+                                              "Ukraine" = "Ukraine",
+                                              "Ambiguous" = "Ambiguous"),
+                                  selected = "Russia",
+                                  options = list(
+                                    `actions-box` = TRUE,
+                                    size = 10,
+                                    `selected-text-format` = "count > 3"
+                                  ),
+                                  multiple = TRUE),
+               ),
+               column(4,
+                      pickerInput(
+                        inputId = "sources",
+                        label = "Select News Source:",
+                        choices = levels(events_map$source),
+                        options = list(
+                          `actions-box` = TRUE,
+                          size = 10,
+                          `selected-text-format` = "count > 3"
+                        ),
+                        multiple = TRUE,
+                        selected = levels(events_map$source),
+                      ),
+                      pickerInput(
+                        inputId = "mil_type", 
+                        label = "Military:",
+                        choices = c( "Military" = 1,
+                                     "Not Military" = 0),
+                        selected = c(1, 0),
+                        options = list(
+                          `actions-box` = TRUE,
+                          size = 10,
+                          `selected-text-format` = "count > 3"
+                        ),
+                        multiple = TRUE),
+                      ),
              ),
-             pickerInput(
-               inputId = "sources",
-               label = "Select News Source:",
-               choices = levels(events_map$source),
-               options = list(
-                 `actions-box` = TRUE,
-                 size = 10,
-                 `selected-text-format` = "count > 3"
-               ),
-               multiple = TRUE,
-               selected = levels(events_map$source),
-             )),
-             mainPanel(leafletOutput(outputId = "map")))
-            # place line plots and bar plots here
+             fluidRow(
+               leafletOutput(outputId = "map", height = 600),
              ),
-    # Tabset 2 for control maps
-    tabPanel(title = "Control Mapping",
-             sidebarLayout(sidebarPanel(dateRangeInput(inputId = "datecontrol", 
-                                                       label = "Date range:",
-                                                       start = "2022-02-27",
-                                                       end = control_date_max,
-                                                       min = "2022-02-27",
-                                                       max = control_date_max)),
-             mainPanel(
-               plotOutput(outputId = "control_map"),
-               plotOutput(outputId = "control_bar")
+             fluidRow(
+               column(4,
+                      plotOutput(outputId = "line_plot"),
                ),
-             )
-)))
+               column(8,
+                      plotOutput(outputId = "bar_plot"),
+               )
+             ),
+             fluidRow(
+               column(4,
+                      radioButtons(
+                        inputId = "line_plot_choice",
+                        label = "Choose plot type",
+                        choices = NULL,
+                        selected = "n_cum",
+                        inline = FALSE,
+                        width = NULL,
+                        choiceNames = c("Sum", "Cumulative Sum"),
+                        choiceValues = c("n", "n_cum")
+                      ),
+               ),
+             ),
+             
+  ),
+  # Tabset 2 for control maps
+  tabPanel(title = "Control Mapping",
+           fluidRow(
+             column(4,
+                    dateRangeInput(inputId = "datecontrol", 
+                                   label = "Date range:",
+                                   start = "2022-02-27",
+                                   end = control_date_max,
+                                   min = "2022-02-27",
+                                   max = control_date_max),
+             ),
+           ),
+           fluidRow(
+             column(6,
+                    plotOutput(outputId = "control_map"),
+             ),
+             column(6,
+                    plotOutput(outputId = "control_bar"),
+             ),
+           ),
+           br(),
+           "Note: In the territory control map,",
+           br(),
+           "RU indicates that Russia controls one city both on the start day and the end day;", br(),
+           "UA indicates that Ukrain controls one city both on the start day and the end day;", br(),
+           "RU2UA indicates that Russia controls one city on the start day, while Ukrain controls it on the end day;", br(),
+           "UA2RU indicates that Ukrain controls one city on the start day, while Russia controls it on the end day;", br(),
+           "Contested indicates that one city is being contested on the end day."
+           
+           
+           
+  )))
 
 
 
@@ -167,15 +277,161 @@ server <- function(input, output) {
   #---------------------First Tab---------------------------------------------
   # Create reactive data
   events_map_fil <- reactive({
-    req(input$dateRange)
+
+    req(input$dateRange, input$initiator, input$event_type, input$sources, input$mil_type)
     events_map %>%
-      filter(between(date, input$dateRange[1], input$dateRange[2]))%>%
+      filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
-      #filter(initiator %in% input$initiator) %>%
+      filter(initiator %in% input$initiator) %>%
       filter(evt_type %in% input$event_type) %>%
+      filter(t_mil_b %in% input$mil_type) %>%
       filter(source %in% input$sources)
   })
   
+  col_plot_data_2 <- reactive({
+    req(input$dateRange, input$event_type, input$sources, input$mil_type, cancelOutput = TRUE)
+    col_plot_data_1 %>%
+      filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
+      filter(evt_type %in% input$event_type) %>%
+      filter(t_mil_b %in% input$mil_type) %>%
+      filter(source %in% input$sources)
+  })
+  
+  ### Generate the line chart
+  ### In the next version of the app, add an input to switch between n_cum and n.
+  output$line_plot <- renderPlot({
+    
+    start_date <- reactive({input$dateRange[1]})
+    end_date <- reactive({input$dateRange[2]})
+    
+    event_selected <- reactive({
+      case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
+                input$event_type == "Air Strike/Defense" ~ "t_aad_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Ambiguous" ~ "ambiguous",
+      )
+    })
+    
+    ### filter out (remove) events initiated by neither party
+    line_plot_data <- line_plot_data %>%
+      filter(is.na(line_plot_data$initiated) == FALSE) %>%
+      filter(if_any(any_of(event_selected())) == 1) %>% # count the number of events
+      count(date, initiated, sort = TRUE) %>% # calculate the cumulative sum over time, grouped by the country that initiated the event
+      # https://datacornering.com/cumulative-sum-or-count-in-r/
+      group_by(initiated) %>%
+      arrange(date, decreasing = FALSE) %>%
+      mutate("n_cum" = cumsum(n))
+    
+    # line plot choice
+    line_plot_selected <- reactive({input$line_plot_choice})
+    
+    # generate the bar chart (column plot) with horizontal bars
+    ggplot(line_plot_data, aes(x = date, y = get(line_plot_selected()), color = initiated, linetype = initiated)) +
+      geom_line() +
+      geom_vline(xintercept = start_date(), color = "grey50") +
+      geom_vline(xintercept = end_date(), color = "grey50") +
+      labs(
+        x = "Date",
+        y = NULL,
+        title = "Number of events, by initiator",
+        color = NULL,
+        linetype = NULL,
+      ) +
+    theme(
+      legend.position = "bottom",
+      legend.margin = margin(1, 1, 1, 1),
+      plot.margin = unit(c(1, 0, 1, 0), "cm"),
+    ) +
+    guides(color = guide_legend(nrow = 2, byrow=TRUE))
+  }, height = 400, res = 96)
+  
+  
+  ### Generate the bar plot
+  output$bar_plot <- renderPlot({
+    ### Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
+    event_selected <- reactive({
+      case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
+                input$event_type == "Air Strike/Defense" ~ "t_aad_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
+                input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
+                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Ambiguous" ~ "ambiguous",
+                )
+      })
+    sums_all_events <- tibble()
+    for (i in 1:length(regions_list)) {
+      temp <- tibble(.rows = 1)
+      temp$event_region <- ""
+      temp$event_type <- ""
+      temp$event_sum <- NA
+      for (j in 1:length(event_selected())) {
+        temp$event_region <- regions_list[i]
+        temp$event_type <- event_selected()[j]
+        temp$event_sum <- col_plot_data_2() %>% 
+          filter(region == regions_list[i]) %>%
+          select(contains(event_selected()[j])) %>% 
+          sum()
+        sums_all_events <- bind_rows(sums_all_events, temp)
+      }
+    }
+    
+    sums_all_events <- sums_all_events %>% mutate(event_type = case_when(
+      event_type == "t_aad_b" ~ "Air Strike/Defense",
+      event_type ==  "t_airstrike_b" ~ "Air Strike/Defense",
+      event_type == "t_armor_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_arrest_b"  ~ "Arrest by Security Services/Hospital Attack",
+      event_type == "t_artillery_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_firefight_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_ied_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_raid_b"  ~ "Cyber Attack/Paratroopers",
+      event_type == "t_cyber_b"  ~ "Cyber Attack/Paratroopers",
+      event_type == "t_hospital_b"  ~ "Arrest by Security Services/Hospital Attack",
+      event_type == "t_occupy_b"  ~ "Control/Destroy of Territory",
+      event_type == "t_control_b"  ~ "Control/Destroy of Territory",
+      event_type == "t_property_b"  ~ "Control/Destroy of Territory"))
+    
+    # order by number
+
+    # generate the bar chart (column plot) with horizontal bars
+    ggplot(data = sums_all_events, 
+           aes(x = event_sum, y = reorder(event_region, event_sum), fill = event_type)) +
+      geom_col() +
+      labs(
+        y = "Region", 
+        x = NULL,
+        title = "Number of events within the specified time range", 
+        fill = NULL
+         ) +
+      theme(
+        legend.position = "bottom",
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.margin = margin(1, 2.5, 1, 1, unit = "cm"),
+        plot.margin = unit(c(1, 1, 1, 0), "cm"),
+        axis.title.y = element_text(hjust = 1, vjust = 1.05, angle = 0, margin = margin(r = -2.5, l = 2.5, unit = "cm"))
+      ) +
+      guides(fill = guide_legend(nrow=3, byrow=TRUE))
+  }, height = 600, res = 96)
+
+
   # Draw the map
   output$map <- renderLeaflet({
     leaflet() %>%
@@ -193,6 +449,7 @@ server <- function(input, output) {
       addCircleMarkers(~longitude, ~latitude,
                        color = ~pal(events_map_fil()$evt_type),
                        radius = 4,
+                       opacity = 2,
                        #fillOpacity = .7,
                        stroke = FALSE,
                        popup  = paste("Date", events_map_fil()$date, "<br>",
@@ -265,7 +522,10 @@ server <- function(input, output) {
                                    "UA2RU" = "hotpink",
                                    "UA" = "goldenrod1",
                                    "RU2UA" = "yellow2",
-                                   "Contested"="blue"))
+                                   "Contested"="grey50")) +
+      labs(title = "Territory control map, by country") +
+       theme(text = element_text(size = 15)) +    
+      guides(fill = guide_legend(nrow=3, byrow=TRUE))
   })
   
   
@@ -294,20 +554,22 @@ server <- function(input, output) {
     ggplot(df_area(),
            aes(y = prop, x = date)) +
       geom_flow(aes(alluvium = Country), alpha= .9, 
-                lty = 2, fill = "white", color = "black",
+                lty = 2, fill = "transparent", color = "black",
                 curve_type = "linear", 
                 width = .5) +
       geom_col(aes(fill = Country), width = .5, color = "black") +
       scale_fill_manual(values = c("RU" = "firebrick1",
                                    "UA" = "goldenrod1",
-                                   "Contested" = "blue")) +
+                                   "Contested" = "grey50")) +
       scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-      labs(title = "Percentage of area controled by each country",
+      labs(title = "Percentage of area, by country",
            x = "Date",
-           y = "Percentage")
+           y = "Percentage") +
+      theme(text = element_text(size = 15)) +    
+      guides(fill = guide_legend(nrow=5, byrow=TRUE))
   })
   
 }
 ############################## COMPILE #################################
-############################## ???????????????????????????????????????? #################################
+
 shinyApp(ui, server)
