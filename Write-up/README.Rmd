@@ -115,14 +115,14 @@ Below is the code book:
 On our shiny app, we build a map that contains all of the events happened during the war. 
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./screenshot.png')
+knitr::include_graphics('./Figure/event_1.png')
 ```
 As you can see from the picture above, the first map contains 5 selection criteria. The first selection criteria is the date range. Users can freely choose which time period they want to inspect and the data will be filtered by date range. Since the data from VIINA repo is updating, our shiny app will also be updating. 
 
 The rest of 4 selection criterion are based on event types. There are 6 event types will different color schemes. They are Air Strike/Defense, Arrest by Security Services/Hospital Attack, Control/Destroy of Territory, Cyber Attack/Paratroopers, Tank/Artillery/Bomb/Gun Battle and Ambiguous. Users can choose to see one of the 6 types of events, all of the events or anything in between. The initiator selection bar basically filter the data points by whether the event is initiated by Russia or by Ukraine, or ambiguous. Also, users can choose to see all of those on their own will. The military selection bar is designated to filter the data points into two categories, one indicating the event is done by military, another indicating the event is done by non-military or third party organizations. The last selection criteria is the news source. Since all of the data points on the map come from either Ukrainian or Russian news, we think it is necessary for the users to freely decide which news they believe and which news they don't believe. Therefore, we have in total 14 news source which allows users to select. 
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Screenshot3.png')
+knitr::include_graphics('./Figure/event_2.png')
 ```
 If you click the bubbles on the map, the map will zoom in and eventually, you will see every events that are included inside one bubble. Each point on the bubble has different color, and the color correspond to the event type color. Users can also click the points for more information. By clicking one of the points, as shown on the graph above, users can see the Date, Time, Event Type, Initiator, Military Casualties, Civilian Casualties and Url for the news. Users can also click the Url if they are interested in the original news press. 
 
