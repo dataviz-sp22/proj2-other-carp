@@ -246,6 +246,7 @@ server <- function(input, output) {
   # Create reactive data
   events_map_fil <- reactive({
     req(input$dateRange)
+    req(input$event_type)
     events_map %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
