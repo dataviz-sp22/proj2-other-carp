@@ -25,6 +25,9 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 #open data to get factor levels for UI
 control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
 events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
+# use local copies:
+# control_latest <- read_csv("control_latest.csv")
+# events_latest <- read_csv("events_latest.csv")
 shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
@@ -210,6 +213,21 @@ ui <- fluidPage(
                      plotOutput(outputId = "bar_plot"),
               )
             ),
+            fluidRow(
+              column(4,
+                     radioButtons(
+                       inputId = "line_plot_choice",
+                       label = "Choose plot type",
+                       choices = NULL,
+                       selected = "n_cum",
+                       inline = FALSE,
+                       width = NULL,
+                       choiceNames = c("Sum", "Cumulative Sum"),
+                       choiceValues = c("n", "n_cum")
+                     ),
+                     ),
+            ),
+
              ),
     # Tabset 2 for control maps
     tabPanel(title = "Control Mapping",
@@ -245,7 +263,11 @@ server <- function(input, output) {
   #---------------------First Tab---------------------------------------------
   # Create reactive data
   events_map_fil <- reactive({
+#<<<<<<< HEAD >>>>>>> d560894574dc5d54827375122910d3878f913a85
     req(input$dateRange, input$initiator, input$event_type, input$sources)
+    req(input$dateRange)
+    req(input$event_type)
+    req(input$initiator)
     events_map %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
@@ -297,8 +319,11 @@ server <- function(input, output) {
       arrange(date, decreasing = FALSE) %>%
       mutate("n_cum" = cumsum(n))
     
+    # line plot choice
+    line_plot_selected <- reactive({input$line_plot_choice})
+    
     # generate the bar chart (column plot) with horizontal bars
-    ggplot(line_plot_data, aes(x = date, y = n_cum, color = initiated, linetype = initiated)) +
+    ggplot(line_plot_data, aes(x = date, y = get(line_plot_selected()), color = initiated, linetype = initiated)) +
       geom_line() +
       geom_vline(xintercept = start_date(), color = "grey50") +
       geom_vline(xintercept = end_date(), color = "grey50") +
@@ -371,7 +396,7 @@ server <- function(input, output) {
       event_type == "t_property_b"  ~ "Control/Destroy of Territory"))
     
     # order by number
-    sums_all_events$event_region = factor(sums_all_events$event_region, levels = sums_all_events[order(sums_all_events$event_sum),]$event_region)
+
     # generate the bar chart (column plot) with horizontal bars
     ggplot(data = sums_all_events, aes(x = event_sum, y = event_region, fill = event_type)) +
       geom_col() +
