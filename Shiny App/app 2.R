@@ -265,9 +265,6 @@ server <- function(input, output) {
   events_map_fil <- reactive({
 #<<<<<<< HEAD >>>>>>> d560894574dc5d54827375122910d3878f913a85
     req(input$dateRange, input$initiator, input$event_type, input$sources)
-    req(input$dateRange)
-    req(input$event_type)
-    req(input$initiator)
     events_map %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
@@ -277,7 +274,7 @@ server <- function(input, output) {
   })
   
   col_plot_data_2 <- reactive({
-    req(input$dateRange, input$event_type, input$sources)
+    req(input$dateRange, input$event_type, input$sources, cancelOutput = TRUE)
     col_plot_data_1 %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       filter(evt_type %in% input$event_type) %>%
@@ -330,7 +327,7 @@ server <- function(input, output) {
       labs(
         x = "Date",
         y = NULL,
-        title = "Cumulative number of events",
+        title = "Number of events, by initiator",
         color = NULL,
         linetype = NULL,
       ) +
