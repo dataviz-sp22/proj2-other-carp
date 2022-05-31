@@ -23,10 +23,8 @@ ggplot2::theme_set(ggplot2::theme_minimal(base_size = 12))
 #library(colorblindr)
 
 #open data to get factor levels for UI
-#control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
-#events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
-control_latest <- read_csv("control_latest.csv")
-events_latest <- read_csv("events_latest.csv")
+control_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/control_latest.csv")
+events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/master/Data/events_latest.csv")
 shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
@@ -210,17 +208,27 @@ ui <- fluidPage(
              ),
     # Tabset 2 for control maps
     tabPanel(title = "Control Mapping",
-             sidebarLayout(sidebarPanel(dateRangeInput(inputId = "datecontrol", 
-                                                       label = "Date range:",
-                                                       start = "2022-02-27",
-                                                       end = control_date_max,
-                                                       min = "2022-02-27",
-                                                       max = control_date_max)),
-             mainPanel(
-               plotOutput(outputId = "control_map"),
-               plotOutput(outputId = "control_bar")
+             fluidRow(
+               column(4,
+                      dateRangeInput(inputId = "datecontrol", 
+                                     label = "Date range:",
+                                     start = "2022-02-27",
+                                     end = control_date_max,
+                                     min = "2022-02-27",
+                                     max = control_date_max),
                ),
-             )
+             ),
+             fluidRow(
+               column(6,
+                      plotOutput(outputId = "control_bar"),
+               ),
+               column(6,
+                      plotOutput(outputId = "control_map"),
+               ),
+             ),
+
+               
+             
 )))
 
 
