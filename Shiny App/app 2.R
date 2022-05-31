@@ -152,14 +152,19 @@ ui <- fluidPage(
                                                   start = "2022-02-23",
                                                   end = control_date_max,
                                                   min = "2022-02-23",
-                                                  max = control_date_max)
-                                   #selectInput(inputId = "initiator", 
-                                   #label = "Initiator:",
-                                   #choices = c("Russia" = "Russia",
-                                   #"Ukraine" = "Ukraine",
-                                   #"Ambiguous" = "Ambiguous"),
-                                   #selected = "Russia",
-                                   #multiple = TRUE),
+                                                  max = control_date_max),
+                                   pickerInput(inputId = "initiator", 
+                                   label = "Initiator:",
+                                   choices = c("Russia" = "Russia",
+                                   "Ukraine" = "Ukraine",
+                                   "Ambiguous" = "Ambiguous"),
+                                   selected = "Russia",
+                                   options = list(
+                                     `actions-box` = TRUE,
+                                     size = 10,
+                                     `selected-text-format` = "count > 3"
+                                   ),
+                                   multiple = TRUE),
                                    #selectInput(inputId = "mil_type", 
                                    #label = "Military Type:",
                                    #choices = c("Military" = "Military",
@@ -244,7 +249,7 @@ server <- function(input, output) {
     events_map %>%
       filter(between(date, input$dateRange[1], input$dateRange[2])) %>%
       #filter(mil_type == input$mil_type) %>%
-      #filter(initiator %in% input$initiator) %>%
+      filter(initiator %in% input$initiator) %>%
       filter(evt_type %in% input$event_type) %>%
       filter(source %in% input$sources)
   })
