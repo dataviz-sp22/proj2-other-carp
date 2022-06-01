@@ -295,13 +295,19 @@ Kharkiv.
 ### Data processing
 
 The control dataset from Zhukov is on the geographical location level,
-indicating which country is controlling the geographical point on a
-specific day. We conduct a spacial-join on each point to cities and
-define one city’s controlling country as the mode of points. For
-instance, on May 1, if Ukraine controls 60 points of Kyiv, while Russia
-controls 8 points, we will conclude that Ukrain controls Kyiv. Besides,
-since the control data was collected based on news, for some days there
-is no news regarding one city, then we will assume that city belongs to
+indicating which country is controlling the geographical point at a
+specific time (year-month-day-hour). Firstly, we organized the data to
+the day-level by calculating each point’s mode of the controlling
+country on each day. For instance, if there are six observations (1 am,
+5 am, 9 am, etc.) for one point in one day, and in five obs, it belongs
+to Russia, we will conclude that it belongs to Russia on the day.
+
+Secondly, we conduct a spacial-join on each point to cities and define
+one city’s controlling country as the mode of points. For instance, on
+May 1, if Ukraine controls 60 points of Kyiv, while Russia controls
+eight points, we will conclude that Ukrain controls Kyiv. Besides, since
+the control data was collected based on news, for some days there is no
+news regarding one city, then we will assume that city belongs to
 Ukraine - if Russia controls it, there should be news reporting.
 
 ### App functionality overview
