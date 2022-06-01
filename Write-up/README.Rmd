@@ -143,14 +143,28 @@ From the map, we understand which area in Ukraine has the most number of events 
 ## 2.Using plots to contextualize the events on the map.
 The two plots below the map provide more contextual understanding of the events that show up on the map. They are connected to two of the map's inputs: date range and event type.
 
-### App functionality overview
-The first plot is designed to answer how the number of events changed over time, how the activity of the two sides differs, and how this difference changes over time. Thus, the time range selected by the user is indicated with two vertical bars on the full timeline. Moreover, the user can choose between displaying the number of events per day and the cumulative sum of events to understand the war dynamics.
+### Data processing
+The first step of data preparation was a spatial join with a Ukraine map shapefile to assign the observations from the original dataset into the highest administrative units (regions) of Ukraine.
 
-The second plot helps answer how the number of war events and the type of events vary by region.To that end, the chart is displaying horizontal bars decomposed by event type for each region. In addition, the regions are ordered by the total number of events in the specified the time period.
+The line plot takes dates as an input. It also takes the selected event types as an input and recodes them in order to pass them as variable/column names. The data is narrowed down to the time range and only the selected categories, and only the events for which initiation is clear between the two sides. Finally, the plot code includes a reactive function indicating the sum or the cumulative sum as the dependent variable. 
+
+The bar plot also take dates an an input and takes the selected event types as an input and recodes them in order to pass them as variable/column names. The data is narrowed down to the time range and only the selected categories. 
+
+It was key that then a function loops over regions and the selected event types to calculate the sums of events for each region/type combination. The sums for each region and each event type are saved in a new data frame used by the plot.
+
+### App functionality overview
+The line plot is designed to answer the questions of 1) how the number of events changed over time, 2) how the activity of the two sides of conflict differs, and 3) how this difference changes over time. Thus, the lines on the plot of number of events over time are separated for Ukraine and Russia, and time range selected by the user is indicated with two vertical bars on the full timeline. Moreover, the user can choose between displaying the number of events per day and the cumulative sum of events to better understand the war dynamics.
+
+The bar plot helps answer how the number of war events and the type of events vary by region.To that end, the chart is displaying horizontal bars decomposed by event type for each region. In addition, the regions are ordered by the total number of events in the specified the time period.
 
 ### Some analytical insights
 
-As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 31st) and use data for all events. From the first plot, we can see that Russia has initiated disproportionately more events than Ukraine in the first month, while this advantage shrunk over time and is not large in the most recent month. Moreover, comparing the two regions with the help of the plot tells us that the center of gravity shifted from Kiev, the capital, to the Eastern regions of Donetsk and Kharkiv.
+As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 31st) and use data for all events. 
+
+From the line plot, we can see that Russia has initiated disproportionately more events than Ukraine in the first month, while this advantage shrunk over time (except for mid-April) and is not large in the most recent month. 
+The bar plot seems to indicate that air strike, air defense, arrest by security services, and hospital attacks have been the most frequent event types in both periods. However, the relative importance of explosions and other forms of destruction of property has decreased, while the occupations of territory and buildings (especially in Donetsk) have increased between the first and the most recent month. In both periods, Crimea stands out as an interesting case--the formerly annexed territory mostly faces cyber attacks, and other war events are marginal.
+
+Moreover, comparing the two regions with the help of the bar plot tells us that while the Eastern regions of Donetsk and Kharkiv have been prominent in the earliest and the latest phases of the war, the center of gravity shifted away from Kiev and its surrounding region, and toward Odessa, Dnipropetrovsk, and Luhansk.
 
 ## 3.Using a map and a plots to display territorial control changes during the course of the war.
 
