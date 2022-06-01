@@ -1,6 +1,6 @@
 ---
 title: "Final Project Write up"
-author: "Other Carp"
+author: "The Other Carp team: Bohan Yang, Paweł Rybacki, Zihan Zhu "
 date: "2022/5/31"
 output: github_document
 ---
@@ -29,7 +29,111 @@ https://wdxbh1998.shinyapps.io/UkrainWar
 # Data
 We used the VIINA (Violent Incident Information from News Articles on the 2022 Russian Invasion of Ukraine) data set collected by Professor Yuri Zhukov from the University of Michigan (see [full list here](https://github.com/zhukovyuri/VIINA)). This is the most comprehensive data set from the internet, which provides us extensive information to visualize.
 
-It's a near-real time multi-source event data system based on news reports from Ukrainian and Russian media, and Zhukov geocoded and classified them into  standard conflict event categories through machine learning. The events are GIS-ready, with temporal precision down to the minute. The final data set was orginized and saved into two csv files.
+It's a near-real time multi-source event data system based on news reports from Ukrainian and Russian media, and Zhukov geocoded and classified them into  standard conflict event categories through machine learning. The events are GIS-ready, with temporal precision down to the minute. The final data set was orginized and saved into two csv files, descriptions of which are in the Appendix.
+
+
+# Analysis
+
+## 1. Using a map to show events that happened during the war in Ukraine.
+
+### App functionality overview
+
+On our shiny app, we build a map that contains all of the events happened during the war. 
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/event_1.png')
+```
+As you can see from the picture above, the first map contains 5 selection criteria. The first selection criteria is the date range. Users can freely choose which time period they want to inspect and the data will be filtered by date range. Since the data from VIINA repo is updating, our shiny app will also be updating. 
+
+The rest of 4 selection criteria are based on event types. There are 7 event types will different color schemes. They are Air Strike/Defense, Arrest by Security Services/Hospital Attack, Destruction of Property or Explosion, Occupation of Territory or Buildings, Cyber Attack, Tank/Artillery/Gun Battle, and Ambiguous. Users can choose to see one of the 7 types of events, all of the events or anything in between. The initiator selection bar basically filter the data points by whether the event is initiated by Russia or by Ukraine, or ambiguous. Also, users can choose to see all of those on their own will. The military selection bar is designated to filter the data points into two categories, one indicating the event is done by military, another indicating the event is done by non-military or third party organizations. The last selection criteria is the news source. Since all of the data points on the map come from either Ukrainian or Russian news, we think it is necessary for the users to freely decide which news they believe and which news they don't believe. Therefore, we have in total 14 news sources which users can select. 
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/event_2.png')
+```
+If you click the bubbles on the map, the map will zoom in and eventually, you will see every events that are included inside one bubble. Each point on the bubble has different color, and the color correspond to the event type color. Users can also click the points for more information. By clicking one of the points, as shown on the graph above, users can see the Date, Time, Event Type, Initiator, Military Casualties, Civilian Casualties and Url for the news. Users can also click the Url if they are interested in the original news press. 
+
+### Some analytical insights
+
+By making a visualization like this, we at least know some summary statistics of the data. For example, when we look at the number of events that took place during the whole war, we notice that Donetsk, Luhansk and Kiev are three cities that suffered the most. It is reasonable because Donetsk and Luahnsk are close to Russia. And because they did not have good relationship with Ukraine. Kiev are the capital of Ukraine, it is reasonable to assume that lots of special force or cyber attack will happen in this city in order to disable the head quarter of Ukraine. 
+
+Same patterns apply to coastal cities such as Odessa, Mykolaiv, and Kherson. Usually, coastal cities are important for military operation because not only country can launch attack from sea, but also country can get reinforcement from shipment. Therefore, it is very important for country to conquer the coastal cities. 
+
+From the map, we understand which area in Ukraine has the most number of events happened and it is very useful for our following analysis.
+
+
+## 2. Using plots to contextualize the events on the map.
+The two plots below the map provide more contextual understanding of the events that show up on the map. They are connected to two of the map's inputs: date range and event type.
+
+### App functionality overview
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_1.jpg')
+```
+The line plot is designed to answer the questions of 1) how the number of events changed over time, 2) how the activity of the two sides of conflict differs, and 3) how this difference changes over time. Thus, the lines on the plot of number of events over time are separated for Ukraine and Russia, and time range selected by the user is indicated with two vertical bars on the full timeline. Moreover, the user can choose between displaying the number of events per day and the cumulative sum of events to better understand the war dynamics.
+
+The bar plot helps answer how the number of war events and the type of events vary by region.To that end, the chart is displaying horizontal bars decomposed by event type for each region. In addition, the regions are ordered by the total number of events in the specified the time period.
+
+### Some analytical insights
+
+As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 30st) and use data for all events.
+
+*The plots for all event types and the range between February 23rd to March 23rd:*
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_2.jpg')
+```
+
+*The plots for all event types and the range between April 30th to May 30st:*
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_3.jpg')
+```
+
+From the line plot, we can see that Russia has initiated disproportionately more events than Ukraine in the first month, while this advantage shrunk over time (except for mid-April) and is not large in the most recent month. 
+The bar plot seems to indicate that air strike, air defense, arrest by security services, and hospital attacks have been the most frequent event types in both periods. However, the relative importance of explosions and other forms of destruction of property has decreased, while the occupations of territory and buildings (especially in Donetsk) have increased between the first and the most recent month. In both periods, Crimea stands out as an interesting case--the formerly annexed territory mostly faces cyber attacks, and other war events are marginal.
+
+Moreover, comparing the two regions with the help of the bar plot tells us that while the Eastern regions of Donetsk and Kharkiv have been prominent in the earliest and the latest phases of the war, the center of gravity shifted away from Kiev and its surrounding region, and toward Odessa, Dnipropetrovsk, and Luhansk.
+
+## 3. Using a map and a plots to display territorial control changes during the course of the war.
+
+### App functionality overview
+
+We allow readers to choose the start and ending date, and we will compare the difference between these two days to present the dynamic of territory control. We need to note that we only compare these two days but omit what happened between these two days.
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab2_1.png')
+```
+
+We generate a "control" variable, defined as this:
+
+- RU: Russia controls one city both on the start day and the end day
+- UA: Ukraine controls one city both on the start day and the end day
+- RU2UA: Russia controls one city on the start day, while Ukraine controls it on the end day
+- UA2RU: Ukraine controls one city on the start day, while Russia controls it on the end day
+- Contested: one city is being contested at the end day
+
+We chose that color based on the color of the national flags: Russia's control is red and pink; Ukraine's control is golden and yellow.
+
+There is also a bar plot, indicating each country's territory proportion of Ukraine territory and adding lines to show the time trend, making it more apparent to show the increase/decrease of proportion.
+
+Besides, we designed our program robustly, allowing readers only to choose one day. Then there will not be any "RU2UA" or "UA2RU" variable on the map, and there will only be one bar in the bar chart.
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab2_2.png')
+```
+
+### Some analytical insights
+From the territory control map and bar plot, the reader will be able to observe the dynamic of the war. For instance, through the comparison between 2-27 and 05-30, we can observe many important facts:
+
+1. Western and middle Ukraine is relatively peaceful, and Russia concentrates on northern, southern, and especially eastern Ukraine.
+2. Ukraine has already retaken the northern part.
+3. Russia controls south-eastern Ukraine steadily and has more power in eastern Ukraine (might be because this part shares a border with Russia and has strong separatist forces prone to Russia).
+4. Russia attacked several new cities, including the north-eastern part and the north side of south-eastern Ukraine.
+5. Ukraine controls about 75% of its territory. During the war, Russia's control increased a little, and now the proportion of the contested area is small.
+
+# Conclusion
+We designed a Shiny App to visualize the Russian-Ukraine crisis to call people's attention, provide up-to-date information, and recover deep insights about it. It includes two parts. The first part analyses events happening in Ukraine. We plot them on a map to visualize geographical patterns and contextualize them in a line plot and bar chart. The second part plots territory control. Readers can explore the dynamic of territory control from the map, and they can also observe the proportion of each country's control.
+
+Admittedly, the app is a little computationally heavy and thus runs somewhat sluggishly on free hosting services. However, our code repository is publicly available for anyone interested in running the app locally. We sincerely hope that the insights our project inspires and the further studies that our Shiny App facilitates will eventually contribute to a more peaceful world!
+
+# Appendix
 
 ## Event data
 
@@ -110,40 +214,12 @@ Below is the code book:
 - feature_code: Type of populated place (see [full list here](https://www.geonames.org/export/codes.html))
 - ctr_[YYYYMMDDHHMMSS]: Control status, with timestamp (UA/RU/CONTESTED)
 
+### Data processing for Tab 2
+The control dataset from Zhukov is on the geographical location level, indicating which country is controlling the geographical point at a specific time (year-month-day-hour). Firstly, we organized the data to the day-level by calculating each point's mode of the controlling country on each day. For instance, if there are six observations (1 am, 5 am, 9 am, etc.) for one point in one day, and in five obs, it belongs to Russia, we will conclude that it belongs to Russia on the day. 
 
-# Analysis
+Secondly, we conduct a spatial-join on each point to cities and define one city's controlling country as the mode of points. For instance, on  May 1, if Ukraine controls 60 points of Kyiv, while Russia controls eight points, we will conclude that Ukraine controls Kyiv. Besides, since the control data was collected based on news, for some days there is no news regarding one city, then we will assume that city belongs to Ukraine - if Russia controls it, there should be news reporting.
 
-## 1. Using a map to show events that happened during the war in Ukraine.
-
-### App functionality overview
-
-On our shiny app, we build a map that contains all of the events happened during the war. 
-
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/event_1.png')
-```
-As you can see from the picture above, the first map contains 5 selection criteria. The first selection criteria is the date range. Users can freely choose which time period they want to inspect and the data will be filtered by date range. Since the data from VIINA repo is updating, our shiny app will also be updating. 
-
-The rest of 4 selection criterion are based on event types. There are 7 event types will different color schemes. They are Air Strike/Defense, Arrest by Security Services/Hospital Attack, Destruction of Property or Explosion, Occupation of Territory or Buildings, Cyber Attack, Tank/Artillery/Gun Battle, and Ambiguous. Users can choose to see one of the 7 types of events, all of the events or anything in between. The initiator selection bar basically filter the data points by whether the event is initiated by Russia or by Ukraine, or ambiguous. Also, users can choose to see all of those on their own will. The military selection bar is designated to filter the data points into two categories, one indicating the event is done by military, another indicating the event is done by non-military or third party organizations. The last selection criteria is the news source. Since all of the data points on the map come from either Ukrainian or Russian news, we think it is necessary for the users to freely decide which news they believe and which news they don't believe. Therefore, we have in total 14 news sources which users can select. 
-
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/event_2.png')
-```
-If you click the bubbles on the map, the map will zoom in and eventually, you will see every events that are included inside one bubble. Each point on the bubble has different color, and the color correspond to the event type color. Users can also click the points for more information. By clicking one of the points, as shown on the graph above, users can see the Date, Time, Event Type, Initiator, Military Casualties, Civilian Casualties and Url for the news. Users can also click the Url if they are interested in the original news press. 
-
-### Some analytical insights
-
-By making a visualization like this, we at least know some summary statistics of the data. For example, when we look at the number of events that took place during the whole war, we notice that Donetsk, Luhansk and Kiev are three cities that suffered the most. It is reasonable because Donetsk and Luahnsk are close to Russia. And because they did not have good relationship with Ukraine. Kiev are the capital of Ukraine, it is reasonable to assume that lots of special force or cyber attack will happen in this city in order to disable the head quarter of Ukraine. 
-
-Same patterns apply to coastal cities such as Odess, Mykolaiv, and Kherson. Usually, coastal cities are important for military operation because not only country can launch attack from sea, but also country can get reinforcement from shipment. Therefore, it is very important for country to conquer the coastal cities. 
-
-From the map, we understand which area in Ukraine has the most number of events happened and it is very useful for our following analysis.
-
-
-## 2. Using plots to contextualize the events on the map.
-The two plots below the map provide more contextual understanding of the events that show up on the map. They are connected to two of the map's inputs: date range and event type.
-
-### Data processing
+### Data processing for plots in Tab 1
 The first step of data preparation was a spatial join with a Ukraine map shapefile to assign the observations from the original dataset into the highest administrative units (regions) of Ukraine.
 
 The line plot takes dates as an input. It also takes the selected event types as an input and recodes them in order to pass them as variable/column names. The data is narrowed down to the time range and only the selected categories, and only the events for which initiation is clear between the two sides. Finally, the plot code includes a reactive function indicating the sum or the cumulative sum as the dependent variable. 
@@ -151,84 +227,6 @@ The line plot takes dates as an input. It also takes the selected event types as
 The bar plot also take dates an an input and takes the selected event types as an input and recodes them in order to pass them as variable/column names. The data is narrowed down to the time range and only the selected categories. 
 
 It was key that then a function loops over regions and the selected event types to calculate the sums of events for each region/type combination. The sums for each region and each event type are saved in a new data frame used by the plot.
-
-### App functionality overview
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/Tab1_1.jpg')
-```
-The line plot is designed to answer the questions of 1) how the number of events changed over time, 2) how the activity of the two sides of conflict differs, and 3) how this difference changes over time. Thus, the lines on the plot of number of events over time are separated for Ukraine and Russia, and time range selected by the user is indicated with two vertical bars on the full timeline. Moreover, the user can choose between displaying the number of events per day and the cumulative sum of events to better understand the war dynamics.
-
-The bar plot helps answer how the number of war events and the type of events vary by region.To that end, the chart is displaying horizontal bars decomposed by event type for each region. In addition, the regions are ordered by the total number of events in the specified the time period.
-
-### Some analytical insights
-
-As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 30st) and use data for all events.
-
-*The plots for all event types and the range between February 23rd to March 23rd:*
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/Tab1_2.jpg')
-```
-
-*The plots for all event types and the range between April 30th to May 30st:*
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/Tab1_3.jpg')
-```
-
-From the line plot, we can see that Russia has initiated disproportionately more events than Ukraine in the first month, while this advantage shrunk over time (except for mid-April) and is not large in the most recent month. 
-The bar plot seems to indicate that air strike, air defense, arrest by security services, and hospital attacks have been the most frequent event types in both periods. However, the relative importance of explosions and other forms of destruction of property has decreased, while the occupations of territory and buildings (especially in Donetsk) have increased between the first and the most recent month. In both periods, Crimea stands out as an interesting case--the formerly annexed territory mostly faces cyber attacks, and other war events are marginal.
-
-Moreover, comparing the two regions with the help of the bar plot tells us that while the Eastern regions of Donetsk and Kharkiv have been prominent in the earliest and the latest phases of the war, the center of gravity shifted away from Kiev and its surrounding region, and toward Odessa, Dnipropetrovsk, and Luhansk.
-
-## 3. Using a map and a plots to display territorial control changes during the course of the war.
-
-### Data processing
-The control dataset from Zhukov is on the geographical location level, indicating which country is controlling the geographical point at a specific time (year-month-day-hour). Firstly, we organized the data to the day-level by calculating each point's mode of the controlling country on each day. For instance, if there are six observations (1 am, 5 am, 9 am, etc.) for one point in one day, and in five obs, it belongs to Russia, we will conclude that it belongs to Russia on the day. 
-
-Secondly, we conduct a spacial-join on each point to cities and define one city's controlling country as the mode of points. For instance, on  May 1, if Ukraine controls 60 points of Kyiv, while Russia controls eight points, we will conclude that Ukrain controls Kyiv. Besides, since the control data was collected based on news, for some days there is no news regarding one city, then we will assume that city belongs to Ukraine - if Russia controls it, there should be news reporting.
-
-### App functionality overview
-
-We allow readers to choose the start and ending date, and we will compare the difference between these two days to present the dynamic of territory control. We need to note that we only compare these two days but omit what happened between these two days.
-
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/Tab2_1.png')
-```
-
-We generate a "control" variable, defined as this:
-
-- RU: Russia controls one city both on the start day and the end day
-- UA: Ukrain controls one city both on the start day and the end day
-- RU2UA: Russia controls one city on the start day, while Ukrain controls it on the end day
-- UA2RU: Ukrain controls one city on the start day, while Russia controls it on the end day
-- Contested: one city is being contested at the end day
-
-We chose that color based on the color of the national flags: Russia's control is red and pink; Ukraine's control is golden and yellow.
-
-There is also a bar plot, indicating each country's territory proportion of Ukrain territory and adding lines to show the time trend, making it more apparent to show the increase/decrease of proportion.
-
-Besides, we designed our program robustly, allowing readers only to choose one day. Then there will not be any "RU2UA" or "UA2RU" variable on the map, and there will only be one bar in the bar chart.
-
-```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('./Figure/Tab2_2.png')
-```
-
-### Some analytical insights
-From the territory control map and bar plot, the reader will be able to observe the dynamic of the war. For instance, through the comparison between 2-27 and 05-30, we can observe many important facts:
-
-1. Western and middle Ukrain is relatively peaceful, and Russia concentrates on northern, southern, and especially eastern Ukraine.
-2. Ukraine has already retaken the northern part.
-3. Russia controls south-eastern Ukrain steadily and has more power in eastern Ukrain (might be because this part shares a border with Russia and has strong separatist forces prone to Russia).
-4. Russia attacked several new cities, including the north-eastern part and the north side of south-eastern Ukraine.
-5. Ukraine controls about 75% of its territory. During the war, Russia's control increased a little, and now the proportion of the contested area is small.
-
-# Conclusion
-We designed a Shiny App to visualize the Russian-Ukraine crisis to call people's attention, provide up-to-date information, and recover deep insights about it. It includes two parts. The first part analyses events happening in Ukraine. We plot them on a map to visualize geographical patterns and contextualize them in a line plot and bar chart. The second part plots territory control. Readers can explore the dynamic of territory control from the map, and they can also observe the proportion of each country's control.
-
-Admittedly, the app is a little computationally heavy and thus runs somewhat sluggishly on free hosting services. However, our code repository is publicly available for anyone interested in running the app locally. We sincerely hope that the insights our project inspires and the further studies that our Shiny App facilitates will eventually contribute to a more peaceful world!
-
-
-
-
 
 
 
