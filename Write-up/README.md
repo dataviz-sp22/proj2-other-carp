@@ -77,104 +77,90 @@ head(event)
     ## 4 20220224         https://www.unian.ua/news/archive/20220224 00:35
     ## 5 20220224         https://www.unian.ua/news/archive/20220224 00:35
     ## 6 20220224         https://www.unian.ua/news/archive/20220224 00:35
-    ##                                                                                                                                 text
-    ## 1                        校泻褉邪懈薪褋泻懈械 胁芯械薪薪褘械 芯斜褋褌褉械谢褟谢懈 袚芯褉谢芯胁泻褍, 蟹邪褟胁懈谢懈 胁 袛芯薪械褑泻械
-    ## 2                        校泻褉邪懈薪褋泻懈械 胁芯械薪薪褘械 芯斜褋褌褉械谢褟谢懈 袚芯褉谢芯胁泻褍, 蟹邪褟胁懈谢懈 胁 袛芯薪械褑泻械
-    ## 3 袨泻泻褍锌邪薪褌褘 锌械褉械褋褌邪谢懈 锌褉芯锌褍褋泻邪褌褜 胁 袣褉褘屑 褍泻褉邪懈薪褋泻懈褏 谐褉邪卸写邪薪 鈥\x93 袛械薪懈褋芯胁邪
-    ## 4                                 袧邪 薪褨褔 蟹邪泻褉懈谢懈 邪械褉芯锌芯褉褌懈 啸邪褉泻芯胁邪, 袛薪褨锌褉邪 褌邪 袟邪锌芯褉褨卸卸褟
-    ## 5                                 袧邪 薪褨褔 蟹邪泻褉懈谢懈 邪械褉芯锌芯褉褌懈 啸邪褉泻芯胁邪, 袛薪褨锌褉邪 褌邪 袟邪锌芯褉褨卸卸褟
-    ## 6                                 袧邪 薪褨褔 蟹邪泻褉懈谢懈 邪械褉芯锌芯褉褌懈 啸邪褉泻芯胁邪, 袛薪褨锌褉邪 褌邪 袟邪锌芯褉褨卸卸褟
-    ##   lang        longitude   latitude GEO_PRECISION GEO_API t_mil_pred t_loc_pred
-    ## 1   ru        38.002536   48.30608          ADM3  Yandex  0.9999957 0.99999875
-    ## 2   ru         37.80285  48.015884          ADM3  Yandex  0.9999957 0.99999875
-    ## 3   ru 34.0994127132379 44.9536335          ADM3  Yandex 0.07369903  0.9999984
-    ## 4   ua        36.231202  49.992167          ADM3  Yandex  0.9999945  0.9999949
-    ## 5   ua        35.046181  48.464717          ADM3  Yandex  0.9999945  0.9999949
-    ## 6   ua        35.138851  47.838312          ADM3  Yandex  0.9999945  0.9999949
-    ##     t_san_pred
-    ## 1 0.0026274025
-    ## 2 0.0026274025
-    ## 3 0.0026274025
-    ## 4 0.0026274025
-    ## 5 0.0026274025
-    ## 6 0.0026274025
+    ##                                                                  text lang
+    ## 1           Украинские военные обстреляли Горловку, заявили в Донецке   ru
+    ## 2           Украинские военные обстреляли Горловку, заявили в Донецке   ru
+    ## 3 Оккупанты перестали пропускать в Крым украинских граждан – Денисова   ru
+    ## 4               На ніч закрили аеропорти Харкова, Дніпра та Запоріжжя   ua
+    ## 5               На ніч закрили аеропорти Харкова, Дніпра та Запоріжжя   ua
+    ## 6               На ніч закрили аеропорти Харкова, Дніпра та Запоріжжя   ua
+    ##   longitude latitude GEO_PRECISION GEO_API t_mil_pred t_loc_pred  t_san_pred
+    ## 1  38.00254 48.30608          ADM3  Yandex 0.99999570  0.9999988 0.002627403
+    ## 2  37.80285 48.01588          ADM3  Yandex 0.99999570  0.9999988 0.002627403
+    ## 3  34.09941 44.95363          ADM3  Yandex 0.07369903  0.9999984 0.002627403
+    ## 4  36.23120 49.99217          ADM3  Yandex 0.99999450  0.9999949 0.002627403
+    ## 5  35.04618 48.46472          ADM3  Yandex 0.99999450  0.9999949 0.002627403
+    ## 6  35.13885 47.83831          ADM3  Yandex 0.99999450  0.9999949 0.002627403
 
 The first csv file includes raw events, and below is the codebook:
 
 ### Codebook
 
-  - event\_id: Unique event ID
-  - report\_id: Unique ID for report that contains the event
-  - location: Index of unique locations mentioned in each event
-  - tempid: Temporary numeric ID
-  - source: Data source short name
-  - date: Date of event report (YYYYMMDD)
-  - time: Time of event report (HH:MM)
-  - url: URL web address of event report
-  - text: Text of event report headline/description
-  - lang: Language of report (ua is Ukrainian, ru is Russian)
-  - address: Address of geocoded location
-  - longitude: Longitude coordinate of event location
-  - latitude: Latitude coordinate of event location
-  - GEO\_PRECISION: geographic precision of geocoded location
-  - GEO\_API: Geocoding API used to locate event
-  - t\_\[event type\]: Predicted probability that report describes event
+-   event_id: Unique event ID
+-   report_id: Unique ID for report that contains the event
+-   location: Index of unique locations mentioned in each event
+-   tempid: Temporary numeric ID
+-   source: Data source short name
+-   date: Date of event report (YYYYMMDD)
+-   time: Time of event report (HH:MM)
+-   url: URL web address of event report
+-   text: Text of event report headline/description
+-   lang: Language of report (ua is Ukrainian, ru is Russian)
+-   address: Address of geocoded location
+-   longitude: Longitude coordinate of event location
+-   latitude: Latitude coordinate of event location
+-   GEO_PRECISION: geographic precision of geocoded location
+-   GEO_API: Geocoding API used to locate event
+-   t\_\[event type\]: Predicted probability that report describes event
     of each type (from LSTM model, see above)
-  - a\_\[actor\]: Predicted probability that report describes event
+-   a\_\[actor\]: Predicted probability that report describes event
     initiated by each actor (from LSTM model, see above)
 
 The data includes following event categories:
 
 ### Categories
 
-  - t\_mil: Event is about war/military operations
-  - t\_nmil: Event is not about war/military operations (e.g. human
+-   t_mil: Event is about war/military operations
+-   t_nmil: Event is not about war/military operations (e.g. human
     interest story)
-  - t\_loc: Event report includes reference to specific location
-  - t\_san: Event report mentions economic sanctions imposed on Russia
-  - a\_rus: Event initiated by Russian or Russian-aligned armed forces
-  - a\_ukr: Event initiated by Ukrainian or Ukrainian-aligned armed
+-   t_loc: Event report includes reference to specific location
+-   t_san: Event report mentions economic sanctions imposed on Russia
+-   a_rus: Event initiated by Russian or Russian-aligned armed forces
+-   a_ukr: Event initiated by Ukrainian or Ukrainian-aligned armed
     forces
-  - a\_civ: Event initiated by civilians
-  - a\_other: Event initiated by a third party (e.g. U.S., EU, Red
-    Cross)
-  - t\_aad: Anti-air defense, Buk, shoulder-fired missiles (Igla,
-    Strela, Stinger)
-  - t\_airstrike: Air strike, strategic bombing, helicopter strike
-  - t\_armor: Tank battle or assault
-  - t\_arrest: Arrest by security services or detention of prisoners of
+-   a_civ: Event initiated by civilians
+-   a_other: Event initiated by a third party (e.g. U.S., EU, Red Cross)
+-   t_aad: Anti-air defense, Buk, shoulder-fired missiles (Igla, Strela,
+    Stinger)
+-   t_airstrike: Air strike, strategic bombing, helicopter strike
+-   t_armor: Tank battle or assault
+-   t_arrest: Arrest by security services or detention of prisoners of
     war
-  - t\_artillery: Shelling by field artillery, howitzer, mortar, or
+-   t_artillery: Shelling by field artillery, howitzer, mortar, or
     rockets like Grad/BM-21, Uragan/BM-27, other Multiple Launch Rocket
     System (MRLS)
-  - t\_control: Establishment/claim of territorial control over
+-   t_control: Establishment/claim of territorial control over
     population center
-  - t\_firefight: Any exchange of gunfire with handguns, semi-automatic
+-   t_firefight: Any exchange of gunfire with handguns, semi-automatic
     rifles, automatic rifles, machine guns, rocket-propelled grenades
     (RPGs)
-  - t\_ied: Improvised explosive device, roadside bomb, landmine, car
+-   t_ied: Improvised explosive device, roadside bomb, landmine, car
     bomb, explosion
-  - t\_raid: Assault/attack by paratroopers or special forces, usually
+-   t_raid: Assault/attack by paratroopers or special forces, usually
     followed by a retreat
-  - t\_occupy: Occupation of territory or building
-  - t\_property: Destruction of property or infrastructure
-  - t\_cyber: Cyber operations, including DDOS attacks, website
+-   t_occupy: Occupation of territory or building
+-   t_property: Destruction of property or infrastructure
+-   t_cyber: Cyber operations, including DDOS attacks, website
     defacement
-  - t\_hospitals: Attacks on hospitals and humanitarian convoys
-  - t\_milcas: Event report mentions military casualties
-  - t\_civcas: Event report mentions civilian casualties
+-   t_hospitals: Attacks on hospitals and humanitarian convoys
+-   t_milcas: Event report mentions military casualties
+-   t_civcas: Event report mentions civilian casualties
 
 ## Territorial control
 
 ``` r
 control <- read.csv(here("Data", "control_latest.csv")) %>%
   select(1:8)
-```
-
-    ## Warning in scan(file = file, what = what, sep = sep, quote = quote, dec = dec, :
-    ## EOF within quoted string
-
-``` r
 head(control)
 ```
 
@@ -185,20 +171,20 @@ head(control)
     ## 4    477085      Vaniushkyne      Vaniushkyne
     ## 5    485524         Svistuny         Svistuny
     ## 6    490588           Sopych           Sopych
-    ##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      alternatenames
-    ## 1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Karadzhi,Olenevka,Qaragy,Qara臒y,袣邪褉邪写卸懈虂,袨谢械薪械胁泻邪
-    ## 2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Elizavetins'kij,Elizavetinskij,Yelizavetinskiy,Yelyzavetyns'kyy,袆谢懈蟹邪胁械褌懈薪褋褜泻懈泄,袝谢懈蟹邪胁械褌懈薪褋泻懈泄
-    ## 3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           Katerinivka,Katerinovka,Katerynivka,Kateryniwka,Yekaterinoslavskiy,袣邪褌械褉懈薪芯胁泻邪,袣邪褌械褉懈薪褨胁泻邪,钥铡湛榨謤斋斩崭站寨铡
-    ## 4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Vaniushkyne,Vanjushkine,Vanyushkin,Vanyushkyne,袙邪薪褞褕泻懈薪械
-    ## 5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-    ## 6 Sapych,Sopich,Sopici,Sopic驶,Sopych,Sopych',Sopytsch,Sop卯ci,suo pi qi,小邪锌褘褔,小芯锌懈褔,小芯锌褘褔褜,諐崭蘸斋展,绱㈢毊濂\x87",34.36082,51.8503,PPL,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA,UA\n494448,Shilova Balka,Shilova Balka,",33.31667,46.81667,PPL,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,RU,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n498959,Samiilove,Samiilove,Samiilove
-    ##   longitude  latitude feature_code ctr_20220227214017
-    ## 1  32.53333  45.38333        PPLA3                 RU
-    ## 2  38.82056  47.84083         PPLX                 RU
-    ## 3  38.75174  47.69011          PPL                 RU
-    ## 4  38.27055  47.25507          PPL                 RU
-    ## 5  38.40694  47.72639          PPL                 RU
-    ## 6 Samijlove Samiylove     Samoylov          Samoylovo
+    ##                                                                                           alternatenames
+    ## 1                                                       Karadzhi,Olenevka,Qaragy,Qarağy,Караджи́,Оленевка
+    ## 2         Elizavetins'kij,Elizavetinskij,Yelizavetinskiy,Yelyzavetyns'kyy,Єлизаветинський,Елизаветинский
+    ## 3 Katerinivka,Katerinovka,Katerynivka,Kateryniwka,Yekaterinoslavskiy,Катериновка,Катеринівка,Կատերինովկա
+    ## 4                                               Vaniushkyne,Vanjushkine,Vanyushkin,Vanyushkyne,Ванюшкине
+    ## 5                                                                                                       
+    ## 6   Sapych,Sopich,Sopici,Sopicʻ,Sopych,Sopych',Sopytsch,Sopîci,suo pi qi,Сапыч,Сопич,Сопычь,Սոպիչ,索皮奇
+    ##   longitude latitude feature_code ctr_20220227214017
+    ## 1  32.53333 45.38333        PPLA3                 RU
+    ## 2  38.82056 47.84083         PPLX                 RU
+    ## 3  38.75174 47.69011          PPL                 RU
+    ## 4  38.27055 47.25507          PPL                 RU
+    ## 5  38.40694 47.72639          PPL                 RU
+    ## 6  34.36082 51.85030          PPL                 UA
 
 Based on the event data set, Zhukov collected a csv file indicating
 whether each district administrative center is presently under the
@@ -209,20 +195,20 @@ Below is the code book:
 
 ### Codebook
 
-  - geonameid: Numeric ID of populated place
-  - name: Name of populated place
-  - asciiname: Name of populated place, ASCII values
-  - alternatenames: Alternative spellings of place name
-  - longitude: Longitude coordinate of populated place
-  - latitude: Latitude coordinate of populated place  
-  - feature\_code: Type of populated place (see [full list
+-   geonameid: Numeric ID of populated place
+-   name: Name of populated place
+-   asciiname: Name of populated place, ASCII values
+-   alternatenames: Alternative spellings of place name
+-   longitude: Longitude coordinate of populated place
+-   latitude: Latitude coordinate of populated place  
+-   feature_code: Type of populated place (see [full list
     here](https://www.geonames.org/export/codes.html))
-  - ctr\_\[YYYYMMDDHHMMSS\]: Control status, with timestamp
+-   ctr\_\[YYYYMMDDHHMMSS\]: Control status, with timestamp
     (UA/RU/CONTESTED)
 
 # Analysis
 
-## 1.Using a map to show events that happened during the war in Ukraine.
+## 1. Using a map to show events that happened during the war in Ukraine.
 
 ### App functionality overview
 
@@ -284,23 +270,50 @@ country to conquer the coastal cities.
 From the map, we understand which area in Ukraine has the most number of
 events happened and it is very useful for our following analysis.
 
-## 2.Using plots to contextualize the events on the map.
+## 2. Using plots to contextualize the events on the map.
 
 The two plots below the map provide more contextual understanding of the
 events that show up on the map. They are connected to two of the map’s
 inputs: date range and event type.
 
+### Data processing
+
+The first step of data preparation was a spatial join with a Ukraine map
+shapefile to assign the observations from the original dataset into the
+highest administrative units (regions) of Ukraine.
+
+The line plot takes dates as an input. It also takes the selected event
+types as an input and recodes them in order to pass them as
+variable/column names. The data is narrowed down to the time range and
+only the selected categories, and only the events for which initiation
+is clear between the two sides. Finally, the plot code includes a
+reactive function indicating the sum or the cumulative sum as the
+dependent variable.
+
+The bar plot also take dates an an input and takes the selected event
+types as an input and recodes them in order to pass them as
+variable/column names. The data is narrowed down to the time range and
+only the selected categories.
+
+It was key that then a function loops over regions and the selected
+event types to calculate the sums of events for each region/type
+combination. The sums for each region and each event type are saved in a
+new data frame used by the plot.
+
 ### App functionality overview
 
-The first plot is designed to answer how the number of events changed
-over time, how the activity of the two sides differs, and how this
-difference changes over time. Thus, the time range selected by the user
-is indicated with two vertical bars on the full timeline. Moreover, the
-user can choose between displaying the number of events per day and the
-cumulative sum of events to understand the war dynamics.
+<img src="./Figure/Tab1_1.jpg" width="100%" /> The line plot is designed
+to answer the questions of 1) how the number of events changed over
+time, 2) how the activity of the two sides of conflict differs, and 3)
+how this difference changes over time. Thus, the lines on the plot of
+number of events over time are separated for Ukraine and Russia, and
+time range selected by the user is indicated with two vertical bars on
+the full timeline. Moreover, the user can choose between displaying the
+number of events per day and the cumulative sum of events to better
+understand the war dynamics.
 
-The second plot helps answer how the number of war events and the type
-of events vary by region.To that end, the chart is displaying horizontal
+The bar plot helps answer how the number of war events and the type of
+events vary by region.To that end, the chart is displaying horizontal
 bars decomposed by event type for each region. In addition, the regions
 are ordered by the total number of events in the specified the time
 period.
@@ -308,15 +321,35 @@ period.
 ### Some analytical insights
 
 As an example, let’s compare the first month (February 23rd to March
-23rd) to the most recent month (April 30th to May 31st) and use data for
-all events. From the first plot, we can see that Russia has initiated
-disproportionately more events than Ukraine in the first month, while
-this advantage shrunk over time and is not large in the most recent
-month. Moreover, comparing the two regions with the help of the plot
-tells us that the center of gravity shifted from Kiev, the capital, to
-the Eastern regions of Donetsk and Kharkiv.
+23rd) to the most recent month (April 30th to May 30st) and use data for
+all events.
 
-## 3.Using a map and a plots to display territorial control changes during the course of the war.
+*The plots for all event types and the range between February 23rd to
+March 23rd:* <img src="./Figure/Tab1_2.jpg" width="100%" />
+
+*The plots for all event types and the range between April 30th to May
+30st:* <img src="./Figure/Tab1_3.jpg" width="100%" />
+
+From the line plot, we can see that Russia has initiated
+disproportionately more events than Ukraine in the first month, while
+this advantage shrunk over time (except for mid-April) and is not large
+in the most recent month. The bar plot seems to indicate that air
+strike, air defense, arrest by security services, and hospital attacks
+have been the most frequent event types in both periods. However, the
+relative importance of explosions and other forms of destruction of
+property has decreased, while the occupations of territory and buildings
+(especially in Donetsk) have increased between the first and the most
+recent month. In both periods, Crimea stands out as an interesting
+case–the formerly annexed territory mostly faces cyber attacks, and
+other war events are marginal.
+
+Moreover, comparing the two regions with the help of the bar plot tells
+us that while the Eastern regions of Donetsk and Kharkiv have been
+prominent in the earliest and the latest phases of the war, the center
+of gravity shifted away from Kiev and its surrounding region, and toward
+Odessa, Dnipropetrovsk, and Luhansk.
+
+## 3. Using a map and a plots to display territorial control changes during the course of the war.
 
 ### Data processing
 
@@ -347,13 +380,13 @@ but omit what happened between these two days.
 
 We generate a “control” variable, defined as this:
 
-  - RU: Russia controls one city both on the start day and the end day
-  - UA: Ukrain controls one city both on the start day and the end day
-  - RU2UA: Russia controls one city on the start day, while Ukrain
+-   RU: Russia controls one city both on the start day and the end day
+-   UA: Ukrain controls one city both on the start day and the end day
+-   RU2UA: Russia controls one city on the start day, while Ukrain
     controls it on the end day
-  - UA2RU: Ukrain controls one city on the start day, while Russia
+-   UA2RU: Ukrain controls one city on the start day, while Russia
     controls it on the end day
-  - Contested: one city is being contested at the end day
+-   Contested: one city is being contested at the end day
 
 We chose that color based on the color of the national flags: Russia’s
 control is red and pink; Ukraine’s control is golden and yellow.

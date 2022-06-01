@@ -113,7 +113,7 @@ Below is the code book:
 
 # Analysis
 
-## 1.Using a map to show events that happened during the war in Ukraine.
+## 1. Using a map to show events that happened during the war in Ukraine.
 
 ### App functionality overview
 
@@ -140,7 +140,7 @@ Same patterns apply to coastal cities such as Odess, Mykolaiv, and Kherson. Usua
 From the map, we understand which area in Ukraine has the most number of events happened and it is very useful for our following analysis.
 
 
-## 2.Using plots to contextualize the events on the map.
+## 2. Using plots to contextualize the events on the map.
 The two plots below the map provide more contextual understanding of the events that show up on the map. They are connected to two of the map's inputs: date range and event type.
 
 ### Data processing
@@ -153,20 +153,33 @@ The bar plot also take dates an an input and takes the selected event types as a
 It was key that then a function loops over regions and the selected event types to calculate the sums of events for each region/type combination. The sums for each region and each event type are saved in a new data frame used by the plot.
 
 ### App functionality overview
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_1.jpg')
+```
 The line plot is designed to answer the questions of 1) how the number of events changed over time, 2) how the activity of the two sides of conflict differs, and 3) how this difference changes over time. Thus, the lines on the plot of number of events over time are separated for Ukraine and Russia, and time range selected by the user is indicated with two vertical bars on the full timeline. Moreover, the user can choose between displaying the number of events per day and the cumulative sum of events to better understand the war dynamics.
 
 The bar plot helps answer how the number of war events and the type of events vary by region.To that end, the chart is displaying horizontal bars decomposed by event type for each region. In addition, the regions are ordered by the total number of events in the specified the time period.
 
 ### Some analytical insights
 
-As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 31st) and use data for all events. 
+As an example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 30st) and use data for all events.
+
+*The plots for all event types and the range between February 23rd to March 23rd:*
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_2.jpg')
+```
+
+*The plots for all event types and the range between April 30th to May 30st:*
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./Figure/Tab1_3.jpg')
+```
 
 From the line plot, we can see that Russia has initiated disproportionately more events than Ukraine in the first month, while this advantage shrunk over time (except for mid-April) and is not large in the most recent month. 
 The bar plot seems to indicate that air strike, air defense, arrest by security services, and hospital attacks have been the most frequent event types in both periods. However, the relative importance of explosions and other forms of destruction of property has decreased, while the occupations of territory and buildings (especially in Donetsk) have increased between the first and the most recent month. In both periods, Crimea stands out as an interesting case--the formerly annexed territory mostly faces cyber attacks, and other war events are marginal.
 
 Moreover, comparing the two regions with the help of the bar plot tells us that while the Eastern regions of Donetsk and Kharkiv have been prominent in the earliest and the latest phases of the war, the center of gravity shifted away from Kiev and its surrounding region, and toward Odessa, Dnipropetrovsk, and Luhansk.
 
-## 3.Using a map and a plots to display territorial control changes during the course of the war.
+## 3. Using a map and a plots to display territorial control changes during the course of the war.
 
 ### Data processing
 The control dataset from Zhukov is on the geographical location level, indicating which country is controlling the geographical point at a specific time (year-month-day-hour). Firstly, we organized the data to the day-level by calculating each point's mode of the controlling country on each day. For instance, if there are six observations (1 am, 5 am, 9 am, etc.) for one point in one day, and in five obs, it belongs to Russia, we will conclude that it belongs to Russia on the day. 

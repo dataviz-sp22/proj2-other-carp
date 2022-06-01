@@ -24,8 +24,8 @@ events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/ma
 #write.csv(events_latest, "Data/events_latest.csv")
 
 # use local copies for a faster loading:
-# control_latest <- read_csv("../Data/control_latest.csv")
-# events_latest <- read_csv("../Data/events_latest.csv")
+# control_latest <- read_csv("Data/control_latest.csv")
+# events_latest <- read_csv("Data/events_latest.csv")
 shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
@@ -334,7 +334,7 @@ server <- function(input, output) {
     # line plot choice (sum or cummulative sum)
     line_plot_selected <- reactive({input$line_plot_choice})
     
-    # generate the bar chart (column plot) with horizontal bars
+    # generate the line chart with two graphed lines and two helper vertical lines
     ggplot(line_plot_data, aes(x = date, y = get(line_plot_selected()), color = initiated, linetype = initiated)) +
       geom_line() +
       # add the lines indicating the selected time range
