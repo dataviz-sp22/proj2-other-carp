@@ -11,7 +11,7 @@ library(here)
 
 # Introduction
 
-In this project, we plan to build a Shiny app with interactive plots to visualize Russian-Ukraine crisis, which will help calling people's attention, and recover deep insights to make peace.
+In this project, we build a Shiny app with interactive plots to visualize Russian-Ukraine crisis, which help calling people's attention, and recover deep insights to make peace.
 
 Russian-Ukraine crisis is a long lasting problem and it caused countless casualties nearly everyday. The earliest big confrontation can be dated back to 2014, when pro-Russian separatists in two cities in Ukraine, Donetsk and Luhansk, started revolts. From 2014 to 2022, there were several small military events and non-military but violent events happened in Ukraine in the area close to the Russian-Ukrainian border. In 2022, allegedly concerned with the potential Eastward expansion of NATO, Russia started a war against Ukraine by attacking targets in the whole country using air weapons and by invading its land territory from multiple sides at the same time. Millions of refugees fled the country, dozens of thousands of people including civilians have been killed in targeted and untargeted attacks, many people have been tortured and robbed of their life assets, and many cities have been destroyed within several weeks. In this project, we want to build a shiny app to illustrate the military events happened during the recent 2022 Russia-Ukraine war and keep track of the territory boundary or military marching of soldiers from two sides.
 
@@ -19,12 +19,13 @@ We have chosen this topic, because all of us are concerned about international c
 
 We are also motivated by the opportunity of enhancing the study of the war in its specific aspects, such as place has the most attackers or military actions, and which side has the relative advantages as the battles continue. If we can plot every single events on a map, we will be able to discover some patterns such as which area or city has the most violent event happen. Perhaps insights with tools such as ours could be somehow used prevent the same attacks from happening again. 
 
-We want to use shiny app and interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different timeframes. 
+We used interactive plots to live demonstrate the process of Russia-Ukraine war, including the territory movement, military and non-military events across different timeframes. 
 
-You can find more details on data frame below and all the codes are included on "app.R" file in Shiny App folder.
+Here is the link to our shiny app:
+https://wdxbh1998.shinyapps.io/UkrainWar
 
 # Data
-We will use the VIINA (Violent Incident Information from News Articles on the 2022 Russian Invasion of Ukraine) data set collected by Professor Yuri Zhukov from the University of Michigan (see [full list here](https://github.com/zhukovyuri/VIINA)). This is the most comprehensive data set from the internet, which provides us extensive information to visualize.
+We used the VIINA (Violent Incident Information from News Articles on the 2022 Russian Invasion of Ukraine) data set collected by Professor Yuri Zhukov from the University of Michigan (see [full list here](https://github.com/zhukovyuri/VIINA)). This is the most comprehensive data set from the internet, which provides us extensive information to visualize.
 
 It's a near-real time multi-source event data system based on news reports from Ukrainian and Russian media, and Zhukov geocoded and classified them into  standard conflict event categories through machine learning. The events are GIS-ready, with temporal precision down to the minute. The final data set was orginized and saved into two csv files.
 
