@@ -255,14 +255,103 @@ analysis.
 
 ## 2.Using plots to contextualize the events on the map.
 
+    • I added two plots connected to the map's inputs so that the user can gain more contextual understanding of the events that show up on the map.
+
 ### App functionality overview
 
+-   More precisely, the inputs are: time and types of events
+
+-   Question 1: How has the number of events changed over TIME? How does
+    the activity of the two sides differ? How does the difference change
+    over time?
+
+-   The time range selected by the user is indicated with two vertical
+    bars.
+
+-   The user can choose between displaying the number of events per day
+    and the cumulative sum of events.
+
+-   Question 2: How does the NUMBER of war events and TYPE of events
+    vary by REGION?
+
+-   We are displaying horizontal bars decomposed by event type and
+    regions are ordered by the total number of events in the specified
+    the time period
+
 ### Some analytical insights
+
+For example, let’s compare the first month (February 23rd to March 23rd)
+to the most recent month (April 30th to May 31st) and use data for all
+events.
+
+From the first plot, we can see that Russia has initiated
+disproportionately more events than Ukraine in the most recent month,
+while … than in the first month. Moreover, between the two periods,
+events shifted from Kiev, the capital, to Eastern regions of Donetsk and
+Kharkiv.
 
 ## 3.Using a map and a plots to display territorial control changes during the course of the war.
 
+### Data processing
+
+The control dataset from Zhukov is on the geographical location level,
+indicating which country is controlling the geographical point on a
+specific day. We conduct a spacial-join on each point to cities and
+define one city’s controlling country as the mode of points. For
+instance, on May 1, if Ukraine controls 60 points of Kyiv, while Russia
+controls 8 points, we will conclude that Ukrain controls Kyiv. Besides,
+since the control data was collected based on news, for some days there
+is no news regarding one city, then we will assume that city belongs to
+Ukraine - if Russia controls it, there should be news reporting.
+
 ### App functionality overview
 
+We allow readers to choose the start and ending date, and we will
+compare the difference between these two days to present the dynamic of
+territory control. We need to note that we only compare these two days
+but omit what happened between these two days.
+
+<img src="./Figure/Tab2_1.png" width="100%" />
+
+We generate a “control” variable, defined as this:
+
+-   RU: Russia controls one city both on the start day and the end day
+-   UA: Ukrain controls one city both on the start day and the end day
+-   RU2UA: Russia controls one city on the start day, while Ukrain
+    controls it on the end day
+-   UA2RU: Ukrain controls one city on the start day, while Russia
+    controls it on the end day
+-   Contested: one city is being contested at the end day
+
+We chose that color based on the color of the national flags: Russia’s
+control is red and pink; Ukraine’s control is golden and yellow.
+
+There is also a bar plot, indicating each country’s territory proportion
+of Ukrain territory and adding lines to show the time trend, making it
+more apparent to show the increase/decrease of proportion.
+
+Besides, we designed our program robustly, allowing readers only to
+choose one day. Then there will not be any “RU2UA” or “UA2RU” variable
+on the map, and there will only be one bar in the bar chart.
+
+<img src="./Figure/Tab2_2.png" width="100%" />
+
 ### Some analytical insights
+
+From the territory control map and bar plot, the reader will be able to
+observe the dynamic of the war. For instance, through the comparison
+between 2-27 and 05-30, we can observe many important facts:
+
+1.  Western and middle Ukrain is relatively peaceful, and Russia
+    concentrates on northern, southern, and especially eastern Ukraine.
+2.  Ukraine has already retaken the northern part.
+3.  Russia controls south-eastern Ukrain steadily and has more power in
+    eastern Ukrain (might be because this part shares a border with
+    Russia and has strong separatist forces prone to Russia).
+4.  Russia attacked several new cities, including the north-eastern part
+    and the north side of south-eastern Ukraine.
+5.  Ukraine controls about 75% of its territory. During the war,
+    Russia’s control increased a little, and now the proportion of the
+    contested area is small.
 
 # Conclusion
