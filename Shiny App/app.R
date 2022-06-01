@@ -262,10 +262,13 @@ ui <- fluidPage(
            "RU2UA indicates that Russia controls one city on the start day, while Ukrain controls it on the end day;", br(),
            "UA2RU indicates that Ukrain controls one city on the start day, while Russia controls it on the end day;", br(),
            "Contested indicates that one city is being contested on the end day."
-           
-           
-           
-  )))
+  )
+  ),
+  br(),br(),br(),br(),br(),
+  p("Authors: Bohan Yang, Paweł Rybacki, Zihan Zhu", align = "center"),
+  p("Data Source: https://github.com/zhukovyuri/VIINA by Yuri Zhukov, the University of Michigan.", align = "center"),
+  p("A 2022 Project for the Data Visualization course by Benjamin Soltoff, the University of Chicago.", align = "center"),
+  )
 
 
 
@@ -410,8 +413,6 @@ server <- function(input, output) {
       event_type == "t_occupy_b"  ~ "Occupation of Territory or Buildings",
       event_type == "t_control_b"  ~ "Occupation of Territory or Buildings",
       event_type == "t_property_b"  ~ "Destruction of Property or Explosion"))
-    
-    # order by number
 
     # generate the bar chart (column plot) with horizontal bars
     ggplot(data = sums_all_events, 
@@ -428,7 +429,7 @@ server <- function(input, output) {
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.margin = margin(1, 2.5, 1, 1, unit = "cm"),
-        plot.margin = unit(c(1, 1, 1, 0), "cm"),
+        plot.margin = unit(c(1, 1, 0, 0), "cm"),
         axis.title.y = element_text(hjust = 1, vjust = 1.05, angle = 0, margin = margin(r = -2.5, l = 2.5, unit = "cm"))
       ) +
       guides(fill = guide_legend(nrow = 4, byrow=TRUE))
@@ -571,6 +572,7 @@ server <- function(input, output) {
       theme(text = element_text(size = 15)) +    
       guides(fill = guide_legend(nrow=5, byrow=TRUE))
   })
+    
   
 }
 ############################## COMPILE #################################
