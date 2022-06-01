@@ -205,7 +205,9 @@ Below is the code book:
 
 # Analysis
 
-## 1.Using map to show events that happened during the war at the Ukraine territory.
+## 1.Using a map to show events that happened during the war in Ukraine.
+
+### App functionality overview
 
 On our shiny app, we build a map that contains all of the events
 happened during the war.
@@ -244,7 +246,23 @@ Type, Initiator, Military Casualties, Civilian Casualties and Url for
 the news. Users can also click the Url if they are interested in the
 original news press.
 
+### Some analytical insights
+
 By making a visualization like this, we at least know some summary
 statistics of the data. We understand which area in Ukraine has the most
 number of events happened and it is very useful for our following
 analysis.
+
+## 2.Using plots to contextualize the events on the map.
+
+### App functionality overview
+
+### Some analytical insights
+
+## 3.Using a map and a plots to display territorial control changes during the course of the war.
+
+### App functionality overview
+
+### Some analytical insights
+
+# Conclusion
