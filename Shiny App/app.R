@@ -1,6 +1,5 @@
 # Load library
 library(tidyverse)
-library(expss)
 library(lubridate)
 library(leaflet)
 library(shiny)
@@ -25,8 +24,8 @@ events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/ma
 #write.csv(events_latest, "Data/events_latest.csv")
 
 # use local copies for a faster loading:
-# control_latest <- read_csv("control_latest.csv")
-# events_latest <- read_csv("events_latest.csv")
+# control_latest <- read_csv("../Data/control_latest.csv")
+# events_latest <- read_csv("../Data/events_latest.csv")
 shp <- st_read("Data/shp_city/pp624tm0074.shp")
 
 #function
@@ -209,7 +208,7 @@ ui <- fluidPage(
                       ),
              ),
              fluidRow(
-               div(leafletOutput(outputId = "map", width = "98%", height = 600), align = "center"),
+               div(leafletOutput(outputId = "map", width = "100%", height = 600)),
              ),
              fluidRow(
                column(4,
@@ -397,6 +396,7 @@ server <- function(input, output) {
     }
     
     sums_all_events <- sums_all_events %>% mutate(event_type = case_when(
+      event_type == "ambiguous" ~ "Ambiguous",
       event_type == "t_aad_b" ~ "Air Strike/Defense",
       event_type ==  "t_airstrike_b" ~ "Air Strike/Defense",
       event_type == "t_armor_b"  ~ "Tank/Artillery/Gun Battle",
