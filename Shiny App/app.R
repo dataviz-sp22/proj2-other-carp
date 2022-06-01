@@ -209,7 +209,7 @@ ui <- fluidPage(
                       ),
              ),
              fluidRow(
-               leafletOutput(outputId = "map", height = 600),
+               div(leafletOutput(outputId = "map", width = "98%", height = 600), align = "center"),
              ),
              fluidRow(
                column(4,
@@ -354,7 +354,7 @@ server <- function(input, output) {
       legend.margin = margin(1, 1, 1, 1),
       plot.margin = unit(c(1, 0, 1, 0), "cm"),
     ) +
-    guides(color = guide_legend(nrow = 4, byrow=TRUE))
+    guides(color = guide_legend(nrow = 2, byrow=TRUE))
   }, height = 400, res = 96)
   
   
@@ -431,7 +431,7 @@ server <- function(input, output) {
         plot.margin = unit(c(1, 1, 1, 0), "cm"),
         axis.title.y = element_text(hjust = 1, vjust = 1.05, angle = 0, margin = margin(r = -2.5, l = 2.5, unit = "cm"))
       ) +
-      guides(fill = guide_legend(nrow=3, byrow=TRUE))
+      guides(fill = guide_legend(nrow = 4, byrow=TRUE))
   }, height = 600, res = 96)
 
 
