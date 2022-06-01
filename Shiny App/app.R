@@ -24,7 +24,7 @@ events_latest <- read_csv("https://raw.githubusercontent.com/zhukovyuri/VIINA/ma
 #write.csv(control_latest, "Data/control_latest.csv")
 #write.csv(events_latest, "Data/events_latest.csv")
 
-# use local copies:
+# use local copies for a faster loading:
 # control_latest <- read_csv("control_latest.csv")
 # events_latest <- read_csv("events_latest.csv")
 shp <- st_read("Data/shp_city/pp624tm0074.shp")
@@ -45,17 +45,17 @@ col_plot_data_1 <- events_latest %>%
   st_drop_geometry() %>%
   mutate(evt_type = as.factor(case_when(t_aad_b == 1 ~ "Air Strike/Defense",
                                 t_airstrike_b == 1 ~ "Air Strike/Defense",
-                                t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                                t_armor_b == 1 ~ "Tank/Artillery/Gun Battle",
                                 t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
-                                t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                                t_firefight_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                                t_ied_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                                t_raid_b == 1 ~ "Cyber Attack/Paratroopers",
-                                t_cyber_b == 1 ~ "Cyber Attack/Paratroopers",
+                                t_artillery_b == 1 ~ "Tank/Artillery/Gun Battle",
+                                t_firefight_b == 1 ~ "Tank/Artillery/Gun Battle",
+                                t_ied_b == 1 ~ "Destruction of Property or Explosion",
+                                t_raid_b == 1 ~ "Paratroopers Attack",
+                                t_cyber_b == 1 ~ "Cyber Attack",
                                 t_hospital_b == 1 ~ "Arrest by Security Services/Hospital Attack",
-                                t_occupy_b == 1 ~ "Control/Destroy of Territory",
-                                t_control_b == 1 ~ "Control/Destroy of Territory",
-                                t_property_b == 1 ~ "Control/Destroy of Territory",
+                                t_occupy_b == 1 ~ "Occupation of Territory or Buildings",
+                                t_control_b == 1 ~ "Occupation of Territory or Buildings",
+                                t_property_b == 1 ~ "Destruction of Property or Explosion",
                                 TRUE ~ "Ambiguous"))) %>%
   rename(region = name_1)
 
@@ -83,17 +83,17 @@ events_map <- events_latest %>%
          # if you have reasonable suggestions
          evt_type = case_when(t_aad_b == 1 ~ "Air Strike/Defense",
                               t_airstrike_b == 1 ~ "Air Strike/Defense",
-                              t_armor_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
+                              t_armor_b == 1 ~ "Tank/Artillery/Gun Battle",
                               t_arrest_b == 1 ~ "Arrest by Security Services/Hospital Attack",
-                              t_artillery_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                              t_firefight_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                              t_ied_b == 1 ~ "Tank/Artillery/Bomb/Gun Battle",
-                              t_raid_b == 1 ~ "Cyber Attack/Paratroopers",
-                              t_cyber_b == 1 ~ "Cyber Attack/Paratroopers",
+                              t_artillery_b == 1 ~ "Tank/Artillery/Gun Battle",
+                              t_firefight_b == 1 ~ "Tank/Artillery/Gun Battle",
+                              t_ied_b == 1 ~ "Destruction of Property or Explosion",
+                              t_raid_b == 1 ~ "Paratroopers",
+                              t_cyber_b == 1 ~ "Cyber Attack",
                               t_hospital_b == 1 ~ "Arrest by Security Services/Hospital Attack",
-                              t_occupy_b == 1 ~ "Control/Destroy of Territory",
-                              t_control_b == 1 ~ "Control/Destroy of Territory",
-                              t_property_b == 1 ~ "Control/Destroy of Territory",
+                              t_occupy_b == 1 ~ "Occupation of Territory or Buildings",
+                              t_control_b == 1 ~ "Occupation of Territory or Buildings",
+                              t_property_b == 1 ~ "Destruction of Property or Explosion",
                               TRUE ~ "Ambiguous"),
          mil_cas = ifelse(t_milcas_b == 1, "Yes", "No"),
          civ_cas = ifelse(t_civcas_b == 1, "Yes", "No"))
@@ -307,17 +307,17 @@ server <- function(input, output) {
     event_selected <- reactive({
       case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
                 input$event_type == "Air Strike/Defense" ~ "t_aad_b",
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Tank/Artillery/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Destruction of Property or Explosion" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Gun Battle" ~  "t_firefight_b",
                 input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
                 input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
-                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
-                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack" ~ "t_cyber_b",
+                input$event_type == "Occupation of Territory or Buildings" ~ "t_occupy_b",
+                input$event_type == "Occupation of Territory or Buildings" ~ "t_control_b",
+                input$event_type == "Destruction of Property or Explosion" ~ "t_property_b",
                 input$event_type == "Ambiguous" ~ "ambiguous",
       )
     })
@@ -325,19 +325,20 @@ server <- function(input, output) {
     ### filter out (remove) events initiated by neither party
     line_plot_data <- line_plot_data %>%
       filter(is.na(line_plot_data$initiated) == FALSE) %>%
-      filter(if_any(any_of(event_selected())) == 1) %>% # count the number of events
+      filter(if_any(any_of(event_selected())) == 1) %>% # count the number of event types selected
       count(date, initiated, sort = TRUE) %>% # calculate the cumulative sum over time, grouped by the country that initiated the event
       # https://datacornering.com/cumulative-sum-or-count-in-r/
       group_by(initiated) %>%
       arrange(date, decreasing = FALSE) %>%
       mutate("n_cum" = cumsum(n))
     
-    # line plot choice
+    # line plot choice (sum or cummulative sum)
     line_plot_selected <- reactive({input$line_plot_choice})
     
     # generate the bar chart (column plot) with horizontal bars
     ggplot(line_plot_data, aes(x = date, y = get(line_plot_selected()), color = initiated, linetype = initiated)) +
       geom_line() +
+      # add the lines indicating the selected time range
       geom_vline(xintercept = start_date(), color = "grey50") +
       geom_vline(xintercept = end_date(), color = "grey50") +
       labs(
@@ -349,46 +350,48 @@ server <- function(input, output) {
       ) +
     theme(
       legend.position = "bottom",
+      # adjust the spacing between plots
       legend.margin = margin(1, 1, 1, 1),
       plot.margin = unit(c(1, 0, 1, 0), "cm"),
     ) +
-    guides(color = guide_legend(nrow = 2, byrow=TRUE))
+    guides(color = guide_legend(nrow = 4, byrow=TRUE))
   }, height = 400, res = 96)
   
   
   ### Generate the bar plot
   output$bar_plot <- renderPlot({
-    ### Count the number of events by event type and region. The following loops over all event types selected by the user to calculate the sum of the events of each type in the filtered data frame.
-    event_selected <- reactive({
+    event_selected <- reactive({ # translate the human-readable input into the language of variables
       case_when(input$event_type == "Air Strike/Defense" ~ "t_airstrike_b",
                 input$event_type == "Air Strike/Defense" ~ "t_aad_b",
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_armor_b", 
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_ied_b", 
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~ "t_artillery_b",
-                input$event_type == "Tank/Artillery/Bomb/Gun Battle" ~  "t_firefight_b",
+                input$event_type == "Tank/Artillery/Gun Battle" ~ "t_armor_b", 
+                input$event_type == "Destruction of Property or Explosion" ~ "t_ied_b", 
+                input$event_type == "Tank/Artillery/Gun Battle" ~ "t_artillery_b",
+                input$event_type == "Tank/Artillery/Gun Battle" ~  "t_firefight_b",
                 input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_arrest_b",
                 input$event_type == "Arrest by Security Services/Hospital Attack" ~ "t_hospital_b",
-                input$event_type == "Cyber Attack/Paratroopers" ~ "t_raid_b",
-                input$event_type == "Cyber Attack/Paratroopers" ~ "t_cyber_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_occupy_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_control_b",
-                input$event_type == "Control/Destroy of Territory" ~ "t_property_b",
+                input$event_type == "Paratroopers" ~ "t_raid_b",
+                input$event_type == "Cyber Attack" ~ "t_cyber_b",
+                input$event_type == "Occupation of Territory or Buildings" ~ "t_occupy_b",
+                input$event_type == "Occupation of Territory or Buildings" ~ "t_control_b",
+                input$event_type == "Destruction of Property or Explosion" ~ "t_property_b",
                 input$event_type == "Ambiguous" ~ "ambiguous",
                 )
       })
+    ### Count the number of events by event type and region. 
+    ### The following piece of script loops over all event types selected by the user to calculate the sum of the events of each type in the passed filtered data frame.
     sums_all_events <- tibble()
-    for (i in 1:length(regions_list)) {
-      temp <- tibble(.rows = 1)
+    for (i in 1:length(regions_list)) { # loop over all regions
+      temp <- tibble(.rows = 1) # prepare the data frame with its variables
       temp$event_region <- ""
       temp$event_type <- ""
       temp$event_sum <- NA
-      for (j in 1:length(event_selected())) {
-        temp$event_region <- regions_list[i]
-        temp$event_type <- event_selected()[j]
-        temp$event_sum <- col_plot_data_2() %>% 
-          filter(region == regions_list[i]) %>%
-          select(contains(event_selected()[j])) %>% 
-          sum()
+      for (j in 1:length(event_selected())) { # loop over each event selected
+        temp$event_region <- regions_list[i] # fill the name of the current (i'th) region in the row
+        temp$event_type <- event_selected()[j] # fill the current event type (j'th)
+        temp$event_sum <- col_plot_data_2() %>% # pass the pre-filtered data
+          filter(region == regions_list[i]) %>% # keep only the current (i'th) event
+          select(contains(event_selected()[j])) %>% # pass the current event type (j'th) as a column name 
+          sum() # calculate the number of rows, which tells you the number of events of the current type
         sums_all_events <- bind_rows(sums_all_events, temp)
       }
     }
@@ -396,17 +399,17 @@ server <- function(input, output) {
     sums_all_events <- sums_all_events %>% mutate(event_type = case_when(
       event_type == "t_aad_b" ~ "Air Strike/Defense",
       event_type ==  "t_airstrike_b" ~ "Air Strike/Defense",
-      event_type == "t_armor_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
+      event_type == "t_armor_b"  ~ "Tank/Artillery/Gun Battle",
       event_type == "t_arrest_b"  ~ "Arrest by Security Services/Hospital Attack",
-      event_type == "t_artillery_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
-      event_type == "t_firefight_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
-      event_type == "t_ied_b"  ~ "Tank/Artillery/Bomb/Gun Battle",
-      event_type == "t_raid_b"  ~ "Cyber Attack/Paratroopers",
-      event_type == "t_cyber_b"  ~ "Cyber Attack/Paratroopers",
+      event_type == "t_artillery_b"  ~ "Tank/Artillery/Gun Battle",
+      event_type == "t_firefight_b"  ~ "Tank/Artillery/Gun Battle",
+      event_type == "t_ied_b"  ~ "Destruction of Property or Explosion",
+      event_type == "t_raid_b"  ~ "Paratroopers",
+      event_type == "t_cyber_b"  ~ "Cyber Attack",
       event_type == "t_hospital_b"  ~ "Arrest by Security Services/Hospital Attack",
-      event_type == "t_occupy_b"  ~ "Control/Destroy of Territory",
-      event_type == "t_control_b"  ~ "Control/Destroy of Territory",
-      event_type == "t_property_b"  ~ "Control/Destroy of Territory"))
+      event_type == "t_occupy_b"  ~ "Occupation of Territory or Buildings",
+      event_type == "t_control_b"  ~ "Occupation of Territory or Buildings",
+      event_type == "t_property_b"  ~ "Destruction of Property or Explosion"))
     
     # order by number
 

@@ -134,10 +134,22 @@ By making a visualization like this, we at least know some summary statistics of
 
 
 ## 2.Using plots to contextualize the events on the map.
+	• I added two plots connected to the map's inputs so that the user can gain more contextual understanding of the events that show up on the map.
 
 ### App functionality overview
+- More precisely, the inputs are: time and types of events 
+- Question 1: How has the number of events changed over TIME? How does the activity of the two sides differ? How does the difference change over time?
+- The time range selected by the user is indicated with two vertical bars.
+- The user can choose between displaying the number of events per day and the cumulative sum of events.
+
+- Question 2: How does the NUMBER of war events and TYPE of events vary by REGION? 
+- We are displaying horizontal bars decomposed by event type and regions are ordered by the total number of events in the specified the time period
 
 ### Some analytical insights
+
+For example, let's compare the first month (February 23rd to March 23rd) to the most recent month (April 30th to May 31st) and use data for all events.
+
+From the first plot, we can see that Russia has initiated disproportionately more events than Ukraine in the most recent month, while ... than in the first month. Moreover, between the two periods, events shifted from Kiev, the capital, to Eastern regions of Donetsk and Kharkiv.
 
 ## 3.Using a map and a plots to display territorial control changes during the course of the war.
 
